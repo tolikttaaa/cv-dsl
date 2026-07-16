@@ -8,14 +8,19 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 
 /** Compiles generated LaTeX sources twice so references and page data settle. */
+@DisableCachingByDefault(because = "Output depends on the locally installed LuaLaTeX distribution")
 abstract class CompileCvPdfTask : DefaultTask() {
     @get:Input
     abstract val lualatexExecutable: Property<String>
 
     @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val latexDirectory: DirectoryProperty
 
     @get:OutputFile

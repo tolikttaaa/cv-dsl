@@ -8,13 +8,18 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 import java.net.InetSocketAddress
 import java.net.Socket
 
 /** Starts a detached JDK web server for the assembled site. */
+@DisableCachingByDefault(because = "Starts an external long-lived preview process")
 abstract class ServeCvSiteTask : DefaultTask() {
     @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val siteDirectory: DirectoryProperty
 
     @get:Input

@@ -5,10 +5,12 @@ import org.gradle.api.GradleException
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
 import java.io.IOException
 
 /** Verifies external tools used by PDF compilation and site preview. */
+@DisableCachingByDefault(because = "Inspects tools installed outside the Gradle build")
 abstract class VerifyCvEnvironmentTask : DefaultTask() {
     @get:Input
     abstract val lualatexExecutable: Property<String>

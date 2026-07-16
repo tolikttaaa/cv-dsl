@@ -23,7 +23,7 @@ internal object LatexTemplate {
      * directory. Kept as an explicit list because classpath directories
      * cannot be enumerated portably (directory vs. jar packaging).
      */
-    private val FILES = listOf("cvdsl.cls") + listOf(
+    private val FILES = listOf("cvdsl.cls", "fonts/OFL.txt") + listOf(
         "Black", "BlackIt", "Bold", "BoldIt", "ExtraLight", "ExtraLightIt",
         "It", "Light", "LightIt", "Regular", "Semibold", "SemiboldIt",
     ).map { "fonts/SourceSansPro-$it.otf" }

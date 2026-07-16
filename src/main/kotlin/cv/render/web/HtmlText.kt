@@ -35,10 +35,10 @@ internal object HtmlText {
         }.trim()
 
     /** Renders a [RichText] run as an HTML fragment. */
-    fun html(text: RichText): String = html(text.inlines)
+    fun html(text: RichText): String = html(text.inlines).normalizeSpace()
 
     private fun html(items: List<Inline>): String =
-        items.joinToString("") { html(it) }.normalizeSpace()
+        items.joinToString("") { html(it) }
 
     private fun html(node: Inline): String = when (node) {
         is Plain -> escape(node.text)

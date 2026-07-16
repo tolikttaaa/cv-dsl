@@ -1,0 +1,32 @@
+name: Feature request
+description: Propose a compatible DSL, renderer or plugin improvement
+title: "feat: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user need is not currently met?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed API or output
+      description: Show a small Kotlin or generated-output example when possible.
+    validations:
+      required: true
+  - type: checkboxes
+    id: formats
+    attributes:
+      label: Affected formats
+      options:
+        - label: Web
+        - label: LaTeX/PDF
+        - label: Gradle plugin
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility considerations
+      description: Could this change existing DSL calls, task names, or generated files?

@@ -3,6 +3,7 @@ package cv.render.latex
 import cv.model.Cv
 import cv.render.CvRenderer
 import cv.render.renderWith
+import cv.render.validateForRendering
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -17,6 +18,7 @@ object LatexRenderer : CvRenderer {
 
     /** Writes `cv.tex`, all section files, and the bundled template into [outDir]. */
     override fun render(cv: Cv, outDir: Path) {
+        cv.validateForRendering()
         Files.createDirectories(outDir.resolve("sections"))
         LatexTemplate.extractTo(outDir)
         outDir.resolve("cv.tex").toFile().writeText(cv.renderLatexDocument())

@@ -4,11 +4,13 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
 /** Stops the preview process recorded by [ServeCvSiteTask]. */
+@DisableCachingByDefault(because = "Mutates external process state")
 abstract class StopCvSiteTask : DefaultTask() {
     @get:Internal
     abstract val pidFile: RegularFileProperty

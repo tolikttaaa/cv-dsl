@@ -4,6 +4,8 @@ java = "21"
 kotlin = "2.2.20"
 detekt = "2.0.0-alpha.5"
 cv-dsl = "0.1.0-SNAPSHOT"
+jacoco = "0.8.13"
+minimum-coverage = "0.70"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
