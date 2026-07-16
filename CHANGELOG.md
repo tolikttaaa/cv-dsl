@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. Releases follow
 [Semantic Versioning](https://semver.org/) and are automated by Release Please.
 
+## [0.1.1](https://github.com/tolikttaaa/cv-dsl/compare/v0.1.0...v0.1.1) (2026-07-16)
+
+
+### Bug Fixes
+
+* resolve build plugins from Maven Central ([228c67c](https://github.com/tolikttaaa/cv-dsl/commit/228c67cc6e2eb8292842feb347a5bd6413969156))
+
 ## [0.1.0] - 2026-07-16
 
 ### Features
