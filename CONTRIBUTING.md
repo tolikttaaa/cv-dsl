@@ -41,6 +41,10 @@ lowest useful level:
 - Gradle plugin/task tests for build integration;
 - the `examples/simple` smoke build for the consumer experience.
 
+The simple example imports the root `gradle/libs.versions.toml`; do not pin a
+second Kotlin plugin version in the example. This keeps its compiler metadata
+compatible with the library during dependency upgrades.
+
 Run before opening a pull request:
 
 ```bash
