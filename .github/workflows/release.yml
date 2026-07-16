@@ -32,6 +32,8 @@ jobs:
     if: needs.release-please.outputs.release-created == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      CV_DSL_VERSION: ${{ needs.release-please.outputs.tag-name }}
     steps:
       - name: Check out released tag
         uses: actions/checkout@v7
@@ -48,8 +50,6 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Verify release and Maven publication
-        env:
-          CV_DSL_VERSION: ${{ needs.release-please.outputs.tag-name }}
         run: ./gradlew --no-daemon clean check publishToMavenLocal
 
       - name: Build demo artifacts
