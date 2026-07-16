@@ -28,11 +28,11 @@ internal fun stopRecordedProcess(pidFile: File): Boolean {
     val process = pid?.let { ProcessHandle.of(it).orElse(null) }
     val stopped = process?.isAlive == true
     if (stopped) {
-        process?.destroy()
+        process.destroy()
         try {
-            process?.onExit()?.get(STOP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            process.onExit().get(STOP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         } catch (_: TimeoutException) {
-            process?.destroyForcibly()
+            process.destroyForcibly()
         }
     }
     pidFile.delete()

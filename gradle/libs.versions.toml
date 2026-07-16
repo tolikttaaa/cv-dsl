@@ -1,7 +1,7 @@
 # Versions owned by the standalone cv-dsl library and Gradle plugin build.
 [versions]
 java = "21"
-kotlin = "2.2.20"
+kotlin = "2.4.10"
 detekt = "2.0.0-alpha.5"
 cv-dsl = "0.1.0-SNAPSHOT"
 jacoco = "0.8.13"
