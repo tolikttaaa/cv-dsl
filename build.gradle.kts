@@ -15,7 +15,11 @@ plugins {
 }
 
 group = "io.github.tolikttaaa"
-version = libs.versions.cv.dsl.get()
+version = providers.gradleProperty("cvDslVersion")
+    .orElse(providers.environmentVariable("CV_DSL_VERSION"))
+    .orElse(libs.versions.cv.dsl)
+    .map { it.removePrefix("v") }
+    .get()
 
 kotlin {
     jvmToolchain(libs.versions.java.get().toInt())

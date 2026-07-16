@@ -48,6 +48,8 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Verify release and Maven publication
+        env:
+          CV_DSL_VERSION: ${{ needs.release-please.outputs.tag-name }}
         run: ./gradlew --no-daemon clean check publishToMavenLocal
 
       - name: Build demo artifacts
