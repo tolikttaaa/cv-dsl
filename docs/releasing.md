@@ -13,7 +13,8 @@ Please. Normal releases do not require a developer to create tags manually.
 4. Merge the release PR. Release Please creates the `vX.Y.Z` tag and GitHub
    Release.
 5. The same workflow runs `check`, validates Maven publication, builds the
-   simple demo, and uploads library/demo artifacts to the GitHub Release.
+   simple demo, injects the tag as the artifact version, and uploads
+   library/demo artifacts to the GitHub Release.
 6. JitPack builds immutable coordinates from the tag. Verify the badge and
    dependency shown in the README before announcing the release.
 
