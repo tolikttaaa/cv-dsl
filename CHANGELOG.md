@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. Releases follow
 [Semantic Versioning](https://semver.org/) and are automated by Release Please.
 
+## [0.1.2](https://github.com/tolikttaaa/cv-dsl/compare/v0.1.1...v0.1.2) (2026-07-16)
+
+
+### Bug Fixes
+
+* version release artifacts from tag ([#4](https://github.com/tolikttaaa/cv-dsl/issues/4)) ([b4c555b](https://github.com/tolikttaaa/cv-dsl/commit/b4c555b1b3fd22024fdf6670359404eb54c907aa))
+
 ## [0.1.1](https://github.com/tolikttaaa/cv-dsl/compare/v0.1.0...v0.1.1) (2026-07-16)
 
 
