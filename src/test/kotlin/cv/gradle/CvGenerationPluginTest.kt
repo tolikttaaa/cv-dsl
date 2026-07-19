@@ -1,5 +1,6 @@
 package cv.gradle
 
+import cv.model.RenderTarget
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -35,6 +36,8 @@ class CvGenerationPluginTest {
             "verifyCvEnvironment",
             "generateLatex",
             "generateWeb",
+            "generateMarkdown",
+            "generateCv",
             "generatePdf",
             "assembleSite",
             "serveSite",
@@ -43,6 +46,43 @@ class CvGenerationPluginTest {
         assertTrue(project.tasks.names.containsAll(expected))
         assertEquals("cv", project.tasks.getByName("generateWeb").group)
         assertNotNull(project.extensions.findByName("cvGeneration"))
+    }
+
+    @Test
+    fun `aggregate generation covers every render target by default`() {
+        val project = project()
+        project.pluginManager.apply(CvGenerationPlugin::class.java)
+        project.pluginManager.apply(KotlinPluginWrapper::class.java)
+
+        assertEquals(
+            setOf("assembleSite", "generatePdf", "generateMarkdown"),
+            project.generateCvDependencies(),
+        )
+    }
+
+    @Test
+    fun `aggregate generation honors the configured targets and web implies the PDF`() {
+        val web = project()
+        web.pluginManager.apply(CvGenerationPlugin::class.java)
+        web.pluginManager.apply(KotlinPluginWrapper::class.java)
+        web.extensions.getByType(CvGenerationExtension::class.java).formats.set(setOf(RenderTarget.WEB))
+        assertEquals(setOf("assembleSite"), web.generateCvDependencies())
+        val site = web.tasks.getByName("assembleSite")
+        assertTrue(site.taskDependencies.getDependencies(site).map { it.name }.containsAll(
+            listOf("generateWeb", "generatePdf"),
+        ))
+
+        val markdownOnly = project()
+        markdownOnly.pluginManager.apply(CvGenerationPlugin::class.java)
+        markdownOnly.pluginManager.apply(KotlinPluginWrapper::class.java)
+        markdownOnly.extensions.getByType(CvGenerationExtension::class.java)
+            .formats.set(setOf(RenderTarget.MARKDOWN))
+        assertEquals(setOf("generateMarkdown"), markdownOnly.generateCvDependencies())
+    }
+
+    private fun Project.generateCvDependencies(): Set<String> {
+        val aggregate = tasks.getByName("generateCv")
+        return aggregate.taskDependencies.getDependencies(aggregate).map { it.name }.toSet()
     }
 
     @Test

@@ -5,6 +5,7 @@ import cv.model.EducationSection
 import cv.model.Photo
 import cv.model.ProjectsSection
 import cv.model.ReferencesSection
+import cv.model.RenderScope
 import cv.model.Section
 import cv.model.SkillsSection
 import cv.model.Social
@@ -65,70 +66,142 @@ class CvBuilder {
         social = SocialBuilder().apply(block).rows.toList()
     }
 
-    /** Adds a summary (free-form introduction) section. */
+    /**
+     * Adds a summary (free-form introduction) section.
+     *
+     * @param scope Render targets the section appears in.
+     */
     fun summary(
         title: String,
         icon: String,
         id: String = "summary",
         webTitle: String = title,
+        scope: RenderScope = RenderScope.all,
         block: DescriptionBuilder.() -> Unit,
     ) {
-        sections += SummarySection(id, title, webTitle, icon, DescriptionBuilder().apply(block).build())
+        sections += SummarySection(
+            id = id,
+            title = title,
+            webTitle = webTitle,
+            icon = icon,
+            text = DescriptionBuilder().apply(block).build(),
+            scope = scope,
+        )
     }
 
-    /** Adds a section listing positions — used for both work experience and teaching. */
+    /**
+     * Adds a section listing positions — used for both work experience and teaching.
+     *
+     * @param scope Render targets the section appears in.
+     */
     fun experience(
         title: String,
         icon: String,
         id: String,
         webTitle: String = title,
+        scope: RenderScope = RenderScope.all,
         block: WorksBuilder.() -> Unit,
     ) {
-        sections += WorksSection(id, title, webTitle, icon, WorksBuilder().apply(block).works.toList())
+        sections += WorksSection(
+            id = id,
+            title = title,
+            webTitle = webTitle,
+            icon = icon,
+            works = WorksBuilder().apply(block).works.toList(),
+            scope = scope,
+        )
     }
 
-    /** Adds a skills table section. */
+    /**
+     * Adds a skills table section.
+     *
+     * @param scope Render targets the section appears in.
+     */
     fun skills(
         title: String,
         icon: String,
         id: String = "skills",
         webTitle: String = title,
+        scope: RenderScope = RenderScope.all,
         block: SkillsBuilder.() -> Unit,
     ) {
-        sections += SkillsSection(id, title, webTitle, icon, SkillsBuilder().apply(block).entries.toList())
+        sections += SkillsSection(
+            id = id,
+            title = title,
+            webTitle = webTitle,
+            icon = icon,
+            entries = SkillsBuilder().apply(block).entries.toList(),
+            scope = scope,
+        )
     }
 
-    /** Adds a personal-projects section. */
+    /**
+     * Adds a personal-projects section.
+     *
+     * @param scope Render targets the section appears in.
+     */
     fun projects(
         title: String,
         icon: String,
         id: String = "projects",
         webTitle: String = title,
+        scope: RenderScope = RenderScope.all,
         block: ProjectsBuilder.() -> Unit,
     ) {
-        sections += ProjectsSection(id, title, webTitle, icon, ProjectsBuilder().apply(block).projects.toList())
+        sections += ProjectsSection(
+            id = id,
+            title = title,
+            webTitle = webTitle,
+            icon = icon,
+            projects = ProjectsBuilder().apply(block).projects.toList(),
+            scope = scope,
+        )
     }
 
-    /** Adds an education timeline section. */
+    /**
+     * Adds an education timeline section.
+     *
+     * @param scope Render targets the section appears in.
+     */
     fun education(
         title: String,
         icon: String,
         id: String = "education",
         webTitle: String = title,
+        scope: RenderScope = RenderScope.all,
         block: EducationBuilder.() -> Unit,
     ) {
-        sections += EducationSection(id, title, webTitle, icon, EducationBuilder().apply(block).entries.toList())
+        sections += EducationSection(
+            id = id,
+            title = title,
+            webTitle = webTitle,
+            icon = icon,
+            entries = EducationBuilder().apply(block).entries.toList(),
+            scope = scope,
+        )
     }
 
-    /** Adds a references section. */
+    /**
+     * Adds a references section.
+     *
+     * @param scope Render targets the section appears in.
+     */
     fun references(
         title: String,
         icon: String,
         id: String = "references",
         webTitle: String = title,
+        scope: RenderScope = RenderScope.all,
         block: ReferencesBuilder.() -> Unit,
     ) {
-        sections += ReferencesSection(id, title, webTitle, icon, ReferencesBuilder().apply(block).referees.toList())
+        sections += ReferencesSection(
+            id = id,
+            title = title,
+            webTitle = webTitle,
+            icon = icon,
+            referees = ReferencesBuilder().apply(block).referees.toList(),
+            scope = scope,
+        )
     }
 
     /** Finalizes the builder into an immutable [Cv]. */

@@ -1,7 +1,9 @@
 package cv.gradle
 
+import cv.model.RenderTarget
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.file.Directory
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFile
@@ -15,6 +17,7 @@ class CvGenerationPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.extensions.create("cvGeneration", CvGenerationExtension::class.java).apply {
             mainClass.convention("cv.MainKt")
+            formats.convention(RenderTarget.all)
             lualatexExecutable.convention(defaultLualatex(project))
             previewPort.convention(
                 project.providers.gradleProperty("cvPreviewPort")
@@ -34,9 +37,28 @@ class CvGenerationPlugin : Plugin<Project> {
         val verify = registerEnvironmentVerification(project, extension)
         val latex = registerGenerator(project, extension, runtimeClasspath, "latex", outputs.latex)
         val web = registerGenerator(project, extension, runtimeClasspath, "web", outputs.web)
+        val markdown = registerGenerator(project, extension, runtimeClasspath, "markdown", outputs.markdown)
         val pdf = registerPdf(project, extension, outputs, verify, latex)
         val site = registerSiteAssembly(project, outputs, web, pdf)
+        registerAggregate(
+            project,
+            extension,
+            mapOf(RenderTarget.WEB to site, RenderTarget.PDF to pdf, RenderTarget.MARKDOWN to markdown),
+        )
         registerPreviewTasks(project, extension, outputs, verify, site)
+    }
+
+    private fun registerAggregate(
+        project: Project,
+        extension: CvGenerationExtension,
+        deliverables: Map<RenderTarget, TaskProvider<*>>,
+    ): TaskProvider<Task> = project.tasks.register("generateCv") { task ->
+        task.group = TASK_GROUP
+        task.description = "Produces every render target selected by cvGeneration.formats; " +
+            "WEB assembles the site including the compiled PDF."
+        task.dependsOn(
+            extension.formats.map { selected -> selected.map(deliverables::getValue) },
+        )
     }
 
     private fun registerEnvironmentVerification(
@@ -148,6 +170,7 @@ private class CvOutputs(project: Project) {
     private val buildRoot = project.rootProject.layout.buildDirectory
     val latex: Provider<Directory> = buildRoot.dir("latex")
     val web: Provider<Directory> = buildRoot.dir("web")
+    val markdown: Provider<Directory> = buildRoot.dir("markdown")
     val site: Provider<Directory> = buildRoot.dir("site")
     val pdf: Provider<RegularFile> = buildRoot.file("cv.pdf")
     val latexLog: Provider<RegularFile> = buildRoot.file("lualatex.log")

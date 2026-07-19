@@ -1,9 +1,11 @@
 package cv.render.latex
 
 import cv.model.Cv
+import cv.model.RenderTarget
 import cv.render.CvRenderer
 import cv.render.renderWith
 import cv.render.validateForRendering
+import cv.render.visibleTo
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -18,11 +20,12 @@ object LatexRenderer : CvRenderer {
 
     /** Writes `cv.tex`, all section files, and the bundled template into [outDir]. */
     override fun render(cv: Cv, outDir: Path) {
-        cv.validateForRendering()
+        val visible = cv.visibleTo(RenderTarget.PDF)
+        visible.validateForRendering()
         Files.createDirectories(outDir.resolve("sections"))
         LatexTemplate.extractTo(outDir)
-        outDir.resolve("cv.tex").toFile().writeText(cv.renderLatexDocument())
-        for (section in cv.sections) {
+        outDir.resolve("cv.tex").toFile().writeText(visible.renderLatexDocument())
+        for (section in visible.sections) {
             outDir.resolve("sections/${section.id}.tex").toFile()
                 .writeText(section.renderWith(LatexRendererBundle, Unit))
         }

@@ -1,6 +1,7 @@
 package cv.render
 
 import cv.render.latex.LatexRenderer
+import cv.render.markdown.MarkdownRenderer
 import cv.render.web.WebRenderer
 
 /** Public composition root for the renderer implementations bundled with `cv-dsl`. */
@@ -9,5 +10,6 @@ object CvRendererFactory {
     fun create(format: RenderFormat): CvRenderer = when (format) {
         RenderFormat.Web -> WebRenderer
         RenderFormat.Latex -> LatexRenderer
+        RenderFormat.Markdown -> MarkdownRenderer
     }
 }

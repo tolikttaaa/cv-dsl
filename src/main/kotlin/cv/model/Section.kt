@@ -18,6 +18,9 @@ sealed interface Section {
 
     /** FontAwesome icon command used by `\sectionTitle`, e.g. `"faSuitcase"`. */
     val icon: String
+
+    /** Render targets this section appears in. */
+    val scope: RenderScope
 }
 
 /** Free-form introduction text at the top of the CV. */
@@ -27,6 +30,8 @@ data class SummarySection(
     override val webTitle: String,
     override val icon: String,
     val text: Description,
+    /** Render targets this summary appears in. */
+    override val scope: RenderScope = RenderScope.all,
 ) : Section
 
 /**
@@ -43,6 +48,8 @@ data class Work(
     val dates: String,
     val description: Description,
     val tags: List<String>,
+    /** Render targets this position appears in. */
+    val scope: RenderScope = RenderScope.all,
 )
 
 /** A chronological list of positions — used for both work experience and teaching. */
@@ -52,10 +59,17 @@ data class WorksSection(
     override val webTitle: String,
     override val icon: String,
     val works: List<Work>,
+    /** Render targets this section appears in. */
+    override val scope: RenderScope = RenderScope.all,
 ) : Section
 
 /** One row of the skills table: a category and the skills belonging to it. */
-data class SkillEntry(val category: String, val skills: List<String>)
+data class SkillEntry(
+    val category: String,
+    val skills: List<String>,
+    /** Render targets this skills row appears in. */
+    val scope: RenderScope = RenderScope.all,
+)
 
 /** A two-column keyword table of skill categories. */
 data class SkillsSection(
@@ -64,6 +78,8 @@ data class SkillsSection(
     override val webTitle: String,
     override val icon: String,
     val entries: List<SkillEntry>,
+    /** Render targets this section appears in. */
+    override val scope: RenderScope = RenderScope.all,
 ) : Section
 
 /** One personal project inside a [ProjectsSection]. */
@@ -73,6 +89,8 @@ data class Project(
     val dates: String,
     val description: Description,
     val tags: List<String>,
+    /** Render targets this project appears in. */
+    val scope: RenderScope = RenderScope.all,
 )
 
 /** A list of personal / side projects. */
@@ -82,10 +100,17 @@ data class ProjectsSection(
     override val webTitle: String,
     override val icon: String,
     val projects: List<Project>,
+    /** Render targets this section appears in. */
+    override val scope: RenderScope = RenderScope.all,
 ) : Section
 
 /** One education milestone: a year range and its rich-text description. */
-data class EducationEntry(val years: String, val description: RichText)
+data class EducationEntry(
+    val years: String,
+    val description: RichText,
+    /** Render targets this milestone appears in. */
+    val scope: RenderScope = RenderScope.all,
+)
 
 /** A timeline of education milestones. */
 data class EducationSection(
@@ -94,6 +119,8 @@ data class EducationSection(
     override val webTitle: String,
     override val icon: String,
     val entries: List<EducationEntry>,
+    /** Render targets this section appears in. */
+    override val scope: RenderScope = RenderScope.all,
 ) : Section
 
 /** A single professional reference. */
@@ -103,6 +130,8 @@ data class Referee(
     val company: Organization,
     val period: String,
     val email: String,
+    /** Render targets this reference appears in. */
+    val scope: RenderScope = RenderScope.all,
 )
 
 /** A list of professional references with contact details. */
@@ -112,4 +141,6 @@ data class ReferencesSection(
     override val webTitle: String,
     override val icon: String,
     val referees: List<Referee>,
+    /** Render targets this section appears in. */
+    override val scope: RenderScope = RenderScope.all,
 ) : Section

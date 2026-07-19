@@ -9,6 +9,7 @@ import java.nio.file.Path
 enum class GenerationTarget {
     Latex,
     Web,
+    Markdown,
     All,
     ;
 
@@ -16,16 +17,18 @@ enum class GenerationTarget {
         get() = when (this) {
             Latex -> listOf(RenderFormat.Latex)
             Web -> listOf(RenderFormat.Web)
-            All -> listOf(RenderFormat.Latex, RenderFormat.Web)
+            Markdown -> listOf(RenderFormat.Markdown)
+            All -> listOf(RenderFormat.Latex, RenderFormat.Web, RenderFormat.Markdown)
         }
 
     companion object {
-        /** Parses the stable lower-case value accepted by Gradle generation tasks. */
+        /** Parses the stable lower-case value accepted by Gradle generation tasks; `md` is a Markdown alias. */
         fun parse(value: String): GenerationTarget = entries.firstOrNull {
             it.name.equals(value, ignoreCase = true)
-        } ?: throw IllegalArgumentException(
-            "Unknown target \"$value\" — expected latex, web or all",
-        )
+        } ?: Markdown.takeIf { value.equals("md", ignoreCase = true) }
+            ?: throw IllegalArgumentException(
+                "Unknown target \"$value\" — expected latex, web, markdown or all",
+            )
     }
 }
 
@@ -77,10 +80,12 @@ private val RenderFormat.directoryName: String
     get() = when (this) {
         RenderFormat.Latex -> "latex"
         RenderFormat.Web -> "web"
+        RenderFormat.Markdown -> "markdown"
     }
 
 private val RenderFormat.displayName: String
     get() = when (this) {
         RenderFormat.Latex -> "LaTeX"
         RenderFormat.Web -> "web portfolio"
+        RenderFormat.Markdown -> "Markdown"
     }
