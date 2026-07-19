@@ -4,6 +4,7 @@ import cv.model.Organization
 import cv.model.EducationEntry
 import cv.model.Project
 import cv.model.Referee
+import cv.model.RenderScope
 import cv.model.SkillEntry
 import cv.model.Work
 
@@ -23,6 +24,7 @@ class WorksBuilder {
      * @param location City / country, shown next to the company.
      * @param dates Human-readable period, e.g. `"May 2021 – January 2023"`.
      * @param tags Technology keywords shown as chips under the description.
+     * @param scope Render targets the element appears in.
      * @param description Body text: paragraphs and bullet lists.
      */
     fun work(
@@ -31,6 +33,7 @@ class WorksBuilder {
         location: String,
         dates: String,
         tags: List<String>,
+        scope: RenderScope = RenderScope.all,
         description: DescriptionBuilder.() -> Unit,
     ) {
         works += Work(
@@ -40,6 +43,7 @@ class WorksBuilder {
             dates = dates,
             description = DescriptionBuilder().apply(description).build(),
             tags = tags,
+            scope = scope,
         )
     }
 }
@@ -51,9 +55,13 @@ class WorksBuilder {
 class SkillsBuilder {
     internal val entries = mutableListOf<SkillEntry>()
 
-    /** Adds a row: a [category] and the [skills] belonging to it. */
-    fun entry(category: String, skills: List<String>) {
-        entries += SkillEntry(category, skills)
+    /**
+     * Adds a row: a [category] and the [skills] belonging to it.
+     *
+     * @param scope Render targets the element appears in.
+     */
+    fun entry(category: String, skills: List<String>, scope: RenderScope = RenderScope.all) {
+        entries += SkillEntry(category, skills, scope)
     }
 }
 
@@ -72,6 +80,7 @@ class ProjectsBuilder {
      *   rendered in bold and linked when [Organization.url] is set.
      * @param dates Human-readable period, e.g. `"2022"` or `"May 2021 – January 2023"`.
      * @param tags Technology keywords shown as chips under the description.
+     * @param scope Render targets the element appears in.
      * @param description Body text: paragraphs and bullet lists.
      */
     fun project(
@@ -79,6 +88,7 @@ class ProjectsBuilder {
         company: Organization,
         dates: String,
         tags: List<String>,
+        scope: RenderScope = RenderScope.all,
         description: DescriptionBuilder.() -> Unit,
     ) {
         projects += Project(
@@ -87,6 +97,7 @@ class ProjectsBuilder {
             dates = dates,
             description = DescriptionBuilder().apply(description).build(),
             tags = tags,
+            scope = scope,
         )
     }
 }
@@ -98,9 +109,17 @@ class ProjectsBuilder {
 class EducationBuilder {
     internal val entries = mutableListOf<EducationEntry>()
 
-    /** Adds a milestone: a [years] label and a free-form rich-text [description]. */
-    fun entry(years: String, description: TextBuilder.() -> Unit) {
-        entries += EducationEntry(years, richText(description))
+    /**
+     * Adds a milestone: a [years] label and a free-form rich-text [description].
+     *
+     * @param scope Render targets the element appears in.
+     */
+    fun entry(
+        years: String,
+        scope: RenderScope = RenderScope.all,
+        description: TextBuilder.() -> Unit,
+    ) {
+        entries += EducationEntry(years, richText(description), scope)
     }
 
     /**
@@ -112,19 +131,21 @@ class EducationBuilder {
      * @param degree What was obtained, e.g. `"Bachelor’s Degree in Software Engineering"`.
      * @param institution School or university.
      * @param location City / country of the institution.
+     * @param scope Render targets the element appears in.
      */
     fun entry(
         years: String,
         degree: String,
         institution: Organization,
         location: String,
+        scope: RenderScope = RenderScope.all,
     ) {
         entries += EducationEntry(years, richText {
             +"$degree: "
             val url = institution.url
             if (url != null) link(url) { bold(institution.name) } else bold(institution.name)
             +", $location"
-        })
+        }, scope)
     }
 }
 
@@ -138,8 +159,17 @@ class ReferencesBuilder {
     /**
      * Adds one professional reference. The [company] name is linked when
      * [Organization.url] is set, but not emphasized — the referee block stays compact.
+     *
+     * @param scope Render targets the element appears in.
      */
-    fun referee(name: String, role: String, company: Organization, period: String, email: String) {
-        referees += Referee(name, role, company, period, email)
+    fun referee(
+        name: String,
+        role: String,
+        company: Organization,
+        period: String,
+        email: String,
+        scope: RenderScope = RenderScope.all,
+    ) {
+        referees += Referee(name, role, company, period, email, scope)
     }
 }

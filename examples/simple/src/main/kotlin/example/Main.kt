@@ -3,6 +3,8 @@ package example
 import cv.dsl.cv
 import cv.generation.CvApplication
 import cv.model.Organization
+import cv.model.RenderScope
+import cv.model.RenderTarget
 
 private val simpleCv = cv {
     firstName = "Ada"
@@ -14,7 +16,8 @@ private val simpleCv = cv {
         row {
             email("ada@example.com")
             github("ada")
-            address("London, UK")
+            // The address appears in the PDF only — scopes hide elements per render target.
+            address("London, UK", scope = RenderScope.only(RenderTarget.PDF))
         }
     }
 

@@ -120,7 +120,7 @@ Now use the plugin tasks:
 | `generateWeb` | Static portfolio in `build/web` |
 | `generateLatex` | Complete LuaLaTeX source tree in `build/latex` |
 | `generateMarkdown` | Markdown document in `build/markdown` |
-| `generateCv` | Every format selected by `cvGeneration.formats` (all by default) |
+| `generateCv` | Every target selected by `cvGeneration.formats` (all by default; `WEB` builds the site including the PDF) |
 | `generatePdf` | Compiled `build/cv.pdf` |
 | `assembleSite` | Portfolio and PDF in `build/site` |
 | `serveSite` / `stopSite` | Managed local preview on port 8080 |
@@ -129,13 +129,16 @@ Now use the plugin tasks:
 Plugin defaults can be overridden when needed:
 
 ```kotlin
+import cv.model.RenderTarget
+
 cvGeneration {
     mainClass.set("example.MainKt")
     lualatexExecutable.set("/opt/texlive/bin/lualatex")
     previewPort.set(9090)
-    // Formats produced by the aggregate generateCv task; defaults to all of
-    // "latex", "web" and "markdown" ("md" is accepted as an alias).
-    formats.set(setOf("web", "markdown"))
+    // Targets produced by the aggregate generateCv task; defaults to all of
+    // them. WEB assembles the deployable site, which includes the compiled
+    // PDF. Unknown values are impossible — the property is enum-typed.
+    formats.set(setOf(RenderTarget.WEB, RenderTarget.MARKDOWN))
 }
 ```
 
@@ -156,6 +159,35 @@ bullets {
 
 Highlight rules must match at least once. This intentionally turns stale
 formatting after a content edit into a test or generation failure.
+
+## Per-element render targets
+
+Every section, entry and contact accepts an optional `scope` controlling the
+outputs it appears in. By default everything is rendered by every target; a
+`RenderScope` narrows that down through its `renderers` (allow-list, defaults
+to all) and `excludedRenderers` (deny-list, defaults to empty) sets:
+
+```kotlin
+import cv.model.RenderScope
+import cv.model.RenderTarget
+
+social {
+    row {
+        email("ada@example.com")
+        phone("+44 20 0000 0000", scope = RenderScope.except(RenderTarget.WEB))
+    }
+}
+
+// The whole section only appears in the PDF:
+references("References", "faQuoteLeft", scope = RenderScope.only(RenderTarget.PDF)) {
+    // …and single entries can be excluded from any target the section renders in.
+    referee(name = "…", role = "…", company = Organization("…"), period = "…", email = "…")
+}
+```
+
+An element is rendered by a target when the target is in `renderers` and not in
+`excludedRenderers`. Filtering is applied once, centrally, before rendering —
+individual renderers never see excluded elements.
 
 ## Requirements
 

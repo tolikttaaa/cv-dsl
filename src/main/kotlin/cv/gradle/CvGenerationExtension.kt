@@ -1,5 +1,6 @@
 package cv.gradle
 
+import cv.model.RenderTarget
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 
@@ -9,12 +10,12 @@ abstract class CvGenerationExtension {
     abstract val mainClass: Property<String>
 
     /**
-     * Render formats produced by the aggregate `generateCv` task: any of
-     * `latex`, `web` and `markdown` (`md` is accepted as a Markdown alias).
-     * Defaults to all formats. The per-format `generate<Format>` tasks stay
-     * registered regardless of this selection.
+     * Render targets produced by the aggregate `generateCv` task; defaults to
+     * all of [RenderTarget]. [RenderTarget.WEB] builds the deployable site,
+     * which embeds the PDF and therefore also compiles it. The per-format
+     * `generate<Format>` tasks stay registered regardless of this selection.
      */
-    abstract val formats: SetProperty<String>
+    abstract val formats: SetProperty<RenderTarget>
 
     /** LuaLaTeX executable name or absolute path. */
     abstract val lualatexExecutable: Property<String>

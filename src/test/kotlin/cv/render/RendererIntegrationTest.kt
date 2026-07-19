@@ -1,6 +1,9 @@
 package cv.render
 
 import cv.dsl.cv
+import cv.model.Organization
+import cv.model.RenderScope
+import cv.model.RenderTarget
 import cv.render.latex.LatexRenderer
 import cv.render.markdown.MarkdownRenderer
 import cv.render.web.WebRenderer
@@ -12,6 +15,7 @@ import kotlin.io.path.readText
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class RendererIntegrationTest {
@@ -102,6 +106,76 @@ class RendererIntegrationTest {
         assertFailsWith<IllegalArgumentException> {
             MarkdownRenderer.render(unsafePhoto, output.resolve("md-photo"))
         }
+    }
+
+    @Test
+    fun `honors per-element render scopes in every format`() {
+        val scoped = cv {
+            firstName = "Ada"
+            lastName = "Lovelace"
+            tagline = "Pioneer"
+            social {
+                row {
+                    email("ada@example.com")
+                    phone("+44 20 0000 0000", scope = RenderScope.only(RenderTarget.PDF))
+                }
+            }
+            summary("Summary", "faUser") { paragraph("Everywhere") }
+            skills("Skills", "faCode", scope = RenderScope.only(RenderTarget.WEB)) {
+                entry("Web only", listOf("HTML"))
+            }
+            experience("Experience", "faSuitcase", id = "experience") {
+                work(
+                    role = "Mathematician",
+                    company = Organization("Engines"),
+                    location = "London",
+                    dates = "1842",
+                    tags = emptyList(),
+                    scope = RenderScope.except(RenderTarget.MARKDOWN),
+                ) { paragraph("Hidden from Markdown") }
+                work(
+                    role = "Translator",
+                    company = Organization("Journals"),
+                    location = "London",
+                    dates = "1843",
+                    tags = emptyList(),
+                ) { paragraph("Visible everywhere") }
+            }
+        }
+
+        val markdown = output.resolve("scoped-md")
+        MarkdownRenderer.render(scoped, markdown)
+        val markdownDocument = markdown.resolve("cv.md").readText()
+        assertFalse(markdownDocument.contains("Skills"))
+        assertFalse(markdownDocument.contains("Mathematician"))
+        assertTrue(markdownDocument.contains("Translator"))
+        assertFalse(markdownDocument.contains("+44 20 0000 0000"))
+
+        val web = output.resolve("scoped-web")
+        WebRenderer.render(scoped, web)
+        val html = web.resolve("index.html").readText()
+        assertTrue(html.contains("Web only"))
+        assertTrue(html.contains("Mathematician"))
+        assertFalse(html.contains("+44 20 0000 0000"))
+
+        val latex = output.resolve("scoped-latex")
+        LatexRenderer.render(scoped, latex)
+        assertFalse(Files.exists(latex.resolve("sections/skills.tex")))
+        assertTrue(latex.resolve("cv.tex").readText().contains("+44 20 0000 0000"))
+        assertTrue(latex.resolve("sections/experience.tex").readText().contains("Mathematician"))
+    }
+
+    @Test
+    fun `excluding every section from a target fails clearly`() {
+        val markdownless = cv {
+            summary("Summary", "faUser", scope = RenderScope.except(RenderTarget.MARKDOWN)) {
+                paragraph("text")
+            }
+        }
+        val error = assertFailsWith<IllegalArgumentException> {
+            MarkdownRenderer.render(markdownless, output.resolve("no-md-sections"))
+        }
+        assertTrue(error.message.orEmpty().contains("at least one section"))
     }
 
     @Test

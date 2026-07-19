@@ -27,6 +27,12 @@ and `Section.renderWith` exhaustively dispatches every section type. Adding a
 section therefore produces compiler errors until every renderer bundle supports
 it.
 
+Element visibility is data, not renderer behavior: every section, entry and
+contact carries a `RenderScope` (allow-list plus deny-list of `RenderTarget`s,
+defaulting to "everywhere"). Each `CvRenderer` prunes the model once through
+`Cv.visibleTo(target)` before rendering, so section renderers never need to
+consult scopes.
+
 ## Public compatibility
 
 The public API includes DSL methods, model constructors/properties,
