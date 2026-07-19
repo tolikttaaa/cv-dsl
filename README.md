@@ -5,9 +5,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 `cv-dsl` is a type-safe Kotlin DSL for keeping a CV in code and rendering the
-same immutable model as both a static portfolio and LuaLaTeX sources. It ships
-with the renderers, web assets, LaTeX class and fonts, plus a Gradle plugin that
-adds generation, PDF, site-assembly and preview tasks.
+same immutable model as a static portfolio, LuaLaTeX sources and a Markdown
+document. It ships with the renderers, web assets, LaTeX class and fonts, plus
+a Gradle plugin that adds generation, PDF, site-assembly and preview tasks.
 
 ## What it produces
 
@@ -17,6 +17,7 @@ One Kotlin definition produces:
 build/
 ├── latex/                 # cv.tex, section files, class and local fonts
 ├── web/                   # index.html, CSS, JavaScript and favicon
+├── markdown/              # cv.md, a single text-first document
 ├── cv.pdf                 # compiled by the generatePdf task
 └── site/                  # deployable web output plus cv.pdf
 ```
@@ -118,6 +119,8 @@ Now use the plugin tasks:
 |---|---|
 | `generateWeb` | Static portfolio in `build/web` |
 | `generateLatex` | Complete LuaLaTeX source tree in `build/latex` |
+| `generateMarkdown` | Markdown document in `build/markdown` |
+| `generateCv` | Every format selected by `cvGeneration.formats` (all by default) |
 | `generatePdf` | Compiled `build/cv.pdf` |
 | `assembleSite` | Portfolio and PDF in `build/site` |
 | `serveSite` / `stopSite` | Managed local preview on port 8080 |
@@ -130,6 +133,9 @@ cvGeneration {
     mainClass.set("example.MainKt")
     lualatexExecutable.set("/opt/texlive/bin/lualatex")
     previewPort.set(9090)
+    // Formats produced by the aggregate generateCv task; defaults to all of
+    // "latex", "web" and "markdown" ("md" is accepted as an alias).
+    formats.set(setOf("web", "markdown"))
 }
 ```
 

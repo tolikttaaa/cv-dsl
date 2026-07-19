@@ -2,6 +2,7 @@ package cv.render
 
 import cv.dsl.cv
 import cv.render.latex.LatexRenderer
+import cv.render.markdown.MarkdownRenderer
 import cv.render.web.WebRenderer
 import cv.testing.sampleCv
 import org.junit.jupiter.api.io.TempDir
@@ -18,9 +19,10 @@ class RendererIntegrationTest {
     lateinit var output: Path
 
     @Test
-    fun `factory returns both supported renderer implementations`() {
+    fun `factory returns every supported renderer implementation`() {
         assertEquals(WebRenderer, CvRendererFactory.create(RenderFormat.Web))
         assertEquals(LatexRenderer, CvRendererFactory.create(RenderFormat.Latex))
+        assertEquals(MarkdownRenderer, CvRendererFactory.create(RenderFormat.Markdown))
     }
 
     @Test
@@ -62,6 +64,44 @@ class RendererIntegrationTest {
         assertTrue(document.contains("\\photo{2.2cm}{portrait.png}"))
         assertTrue(document.contains("\\input{sections/references}"))
         assertTrue(latex.resolve("sections/experience.tex").readText().contains("\\begin{works}"))
+    }
+
+    @Test
+    fun `renders a complete Markdown document`() {
+        val markdown = output.resolve("markdown")
+        MarkdownRenderer.render(sampleCv, markdown)
+
+        assertEquals(
+            setOf("cv.md"),
+            Files.list(markdown).use { files -> files.map { it.fileName.toString() }.toList().toSet() },
+        )
+        val document = markdown.resolve("cv.md").readText()
+        assertTrue(document.startsWith("# Ada Lovelace\n*Computing pioneer & mathematician*"))
+        assertTrue(document.contains("[github.com/ada](https://github.com/ada)"))
+        assertTrue(document.contains("## About"))
+        assertTrue(document.contains("### Mathematician"))
+        assertTrue(document.contains("**[Analytical Engines](https://example.com/engine)** · London · 1842 – 1843"))
+        assertTrue(document.contains("`Algorithms` · `Mathematics`"))
+        assertTrue(document.contains("| Technical | Algorithms, Bernoulli numbers |"))
+        assertTrue(document.contains("- **1828 – 1835** — "))
+        assertTrue(document.contains("[charles@example.com](mailto:charles@example.com)"))
+        assertTrue(document.endsWith("\n"))
+    }
+
+    @Test
+    fun `markdown rendering requires at least one section and validates content`() {
+        val empty = assertFailsWith<IllegalArgumentException> {
+            MarkdownRenderer.render(cv {}, output.resolve("md-empty"))
+        }
+        assertTrue(empty.message.orEmpty().contains("at least one section"))
+
+        val unsafePhoto = cv {
+            photo("../portrait.png")
+            summary("Summary", "faUser") { paragraph("text") }
+        }
+        assertFailsWith<IllegalArgumentException> {
+            MarkdownRenderer.render(unsafePhoto, output.resolve("md-photo"))
+        }
     }
 
     @Test

@@ -7,4 +7,7 @@ sealed interface RenderFormat {
 
     /** Compilable LaTeX source tree plus document-class resources. */
     data object Latex : RenderFormat
+
+    /** Single-file Markdown document suitable for READMEs and text-first hosts. */
+    data object Markdown : RenderFormat
 }

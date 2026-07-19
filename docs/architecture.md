@@ -5,7 +5,8 @@
 ```text
 Kotlin DSL → immutable model → renderer bundle → generated files
                                       ├── web
-                                      └── LaTeX
+                                      ├── LaTeX
+                                      └── Markdown
 ```
 
 ## Packages and ownership
@@ -17,12 +18,13 @@ Kotlin DSL → immutable model → renderer bundle → generated files
 | `cv.render` | Format contracts, dispatch and validation | Consumer content |
 | `cv.render.web` | Safe HTML and bundled browser assets | LaTeX behavior |
 | `cv.render.latex` | Escaped LaTeX and bundled class/fonts | Browser behavior |
+| `cv.render.markdown` | Escaped single-file Markdown document | HTML and LaTeX behavior |
 | `cv.generation` | Output selection and consumer asset copying | Gradle lifecycle |
 | `cv.gradle` | Consumer tasks and local tool orchestration | CV content |
 
 `Section` is sealed. `RendererBundle<C>` is the composition root for a format,
 and `Section.renderWith` exhaustively dispatches every section type. Adding a
-section therefore produces compiler errors until both renderer bundles support
+section therefore produces compiler errors until every renderer bundle supports
 it.
 
 ## Public compatibility

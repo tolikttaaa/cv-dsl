@@ -1,7 +1,9 @@
 package cv.gradle
 
+import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.file.Directory
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFile
@@ -15,6 +17,7 @@ class CvGenerationPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.extensions.create("cvGeneration", CvGenerationExtension::class.java).apply {
             mainClass.convention("cv.MainKt")
+            formats.convention(ALL_FORMATS)
             lualatexExecutable.convention(defaultLualatex(project))
             previewPort.convention(
                 project.providers.gradleProperty("cvPreviewPort")
@@ -34,9 +37,30 @@ class CvGenerationPlugin : Plugin<Project> {
         val verify = registerEnvironmentVerification(project, extension)
         val latex = registerGenerator(project, extension, runtimeClasspath, "latex", outputs.latex)
         val web = registerGenerator(project, extension, runtimeClasspath, "web", outputs.web)
+        val markdown = registerGenerator(project, extension, runtimeClasspath, "markdown", outputs.markdown)
+        registerAggregate(project, extension, mapOf("latex" to latex, "web" to web, "markdown" to markdown))
         val pdf = registerPdf(project, extension, outputs, verify, latex)
         val site = registerSiteAssembly(project, outputs, web, pdf)
         registerPreviewTasks(project, extension, outputs, verify, site)
+    }
+
+    private fun registerAggregate(
+        project: Project,
+        extension: CvGenerationExtension,
+        generators: Map<String, TaskProvider<JavaExec>>,
+    ): TaskProvider<Task> = project.tasks.register("generateCv") { task ->
+        task.group = TASK_GROUP
+        task.description = "Generates every render format selected by cvGeneration.formats."
+        task.dependsOn(
+            extension.formats.map { selected ->
+                selected.map { format ->
+                    val key = format.lowercase().let { if (it == "md") "markdown" else it }
+                    generators[key] ?: throw InvalidUserDataException(
+                        "Unknown cvGeneration format \"$format\" — expected latex, web or markdown",
+                    )
+                }
+            },
+        )
     }
 
     private fun registerEnvironmentVerification(
@@ -138,6 +162,7 @@ class CvGenerationPlugin : Plugin<Project> {
 
     private companion object {
         const val TASK_GROUP = "cv"
+        val ALL_FORMATS = setOf("latex", "web", "markdown")
         const val DEFAULT_PREVIEW_PORT = 8080
         const val MAC_TEX_LUALATEX = "/Library/TeX/texbin/lualatex"
     }
@@ -148,6 +173,7 @@ private class CvOutputs(project: Project) {
     private val buildRoot = project.rootProject.layout.buildDirectory
     val latex: Provider<Directory> = buildRoot.dir("latex")
     val web: Provider<Directory> = buildRoot.dir("web")
+    val markdown: Provider<Directory> = buildRoot.dir("markdown")
     val site: Provider<Directory> = buildRoot.dir("site")
     val pdf: Provider<RegularFile> = buildRoot.file("cv.pdf")
     val latexLog: Provider<RegularFile> = buildRoot.file("lualatex.log")

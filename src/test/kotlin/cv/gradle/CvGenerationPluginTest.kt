@@ -35,6 +35,8 @@ class CvGenerationPluginTest {
             "verifyCvEnvironment",
             "generateLatex",
             "generateWeb",
+            "generateMarkdown",
+            "generateCv",
             "generatePdf",
             "assembleSite",
             "serveSite",
@@ -43,6 +45,45 @@ class CvGenerationPluginTest {
         assertTrue(project.tasks.names.containsAll(expected))
         assertEquals("cv", project.tasks.getByName("generateWeb").group)
         assertNotNull(project.extensions.findByName("cvGeneration"))
+    }
+
+    @Test
+    fun `aggregate generation covers all formats by default`() {
+        val project = project()
+        project.pluginManager.apply(CvGenerationPlugin::class.java)
+        project.pluginManager.apply(KotlinPluginWrapper::class.java)
+
+        assertEquals(
+            setOf("generateLatex", "generateWeb", "generateMarkdown"),
+            project.generateCvDependencies(),
+        )
+    }
+
+    @Test
+    fun `aggregate generation honors the configured formats and md alias`() {
+        val project = project()
+        project.pluginManager.apply(CvGenerationPlugin::class.java)
+        project.pluginManager.apply(KotlinPluginWrapper::class.java)
+        project.extensions.getByType(CvGenerationExtension::class.java).formats.set(setOf("web", "MD"))
+
+        assertEquals(setOf("generateWeb", "generateMarkdown"), project.generateCvDependencies())
+    }
+
+    @Test
+    fun `aggregate generation rejects unknown formats`() {
+        val project = project()
+        project.pluginManager.apply(CvGenerationPlugin::class.java)
+        project.pluginManager.apply(KotlinPluginWrapper::class.java)
+        project.extensions.getByType(CvGenerationExtension::class.java).formats.set(setOf("docx"))
+
+        val error = assertFailsWith<GradleException> { project.generateCvDependencies() }
+        val messages = generateSequence<Throwable>(error) { it.cause }.map { it.message.orEmpty() }
+        assertTrue(messages.any { it.contains("docx") })
+    }
+
+    private fun Project.generateCvDependencies(): Set<String> {
+        val aggregate = tasks.getByName("generateCv")
+        return aggregate.taskDependencies.getDependencies(aggregate).map { it.name }.toSet()
     }
 
     @Test

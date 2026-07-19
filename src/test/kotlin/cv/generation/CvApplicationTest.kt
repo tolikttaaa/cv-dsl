@@ -22,9 +22,11 @@ class CvApplicationTest {
     fun `parses generation targets case insensitively`() {
         assertEquals(GenerationTarget.Latex, GenerationTarget.parse("latex"))
         assertEquals(GenerationTarget.Web, GenerationTarget.parse("WEB"))
+        assertEquals(GenerationTarget.Markdown, GenerationTarget.parse("markdown"))
+        assertEquals(GenerationTarget.Markdown, GenerationTarget.parse("MD"))
         assertEquals(GenerationTarget.All, GenerationTarget.parse("All"))
         val error = assertFailsWith<IllegalArgumentException> { GenerationTarget.parse("json") }
-        assertTrue(error.message.orEmpty().contains("latex, web or all"))
+        assertTrue(error.message.orEmpty().contains("latex, web, markdown or all"))
     }
 
     @Test
@@ -56,11 +58,22 @@ class CvApplicationTest {
         CvApplication(noPhoto, report = {}).run(arrayOf(root.toString(), "latex"))
         assertTrue(Files.isRegularFile(root.resolve("build/latex/cv.tex")))
         assertFalse(Files.exists(root.resolve("build/web")))
+        assertFalse(Files.exists(root.resolve("build/markdown")))
 
         val defaultsRoot = root.resolve("defaults")
         CvApplication(noPhoto, report = {}).generate(defaultsRoot)
         assertTrue(Files.isRegularFile(defaultsRoot.resolve("build/latex/cv.tex")))
         assertTrue(Files.isRegularFile(defaultsRoot.resolve("build/web/index.html")))
+        assertTrue(Files.isRegularFile(defaultsRoot.resolve("build/markdown/cv.md")))
+    }
+
+    @Test
+    fun `generates the Markdown target on its own`() {
+        val noPhoto = sampleCv.copy(photo = null)
+        CvApplication(noPhoto, report = {}).generate(root, GenerationTarget.Markdown)
+        assertTrue(Files.isRegularFile(root.resolve("build/markdown/cv.md")))
+        assertFalse(Files.exists(root.resolve("build/latex")))
+        assertFalse(Files.exists(root.resolve("build/web")))
     }
 
     @Test
