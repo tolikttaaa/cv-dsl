@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. Releases follow
 [Semantic Versioning](https://semver.org/) and are automated by Release Please.
 
+## [0.2.0](https://github.com/tolikttaaa/cv-dsl/compare/v0.1.3...v0.2.0) (2026-07-19)
+
+
+### Features
+
+* add Markdown render format with configurable generation formats ([#8](https://github.com/tolikttaaa/cv-dsl/issues/8)) ([b6e0b97](https://github.com/tolikttaaa/cv-dsl/commit/b6e0b9726dbfeca30e9f511123fca836f4ff4339))
+
 ## [0.1.3](https://github.com/tolikttaaa/cv-dsl/compare/v0.1.2...v0.1.3) (2026-07-16)
 
 
