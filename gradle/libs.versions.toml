@@ -2,7 +2,7 @@
 [versions]
 java = "21"
 kotlin = "2.4.10"
-detekt = "2.0.0-alpha.5"
+detekt = "2.0.0-alpha.6"
 cv-dsl = "0.1.0-SNAPSHOT"
 jacoco = "0.8.13"
 minimum-coverage = "0.70"
