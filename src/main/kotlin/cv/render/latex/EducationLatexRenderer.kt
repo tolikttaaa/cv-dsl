@@ -5,19 +5,21 @@ import cv.model.EducationSection
 import cv.render.ElementRenderer
 
 /** Renders the education timeline. */
-internal object LatexEducationSectionRenderer : ElementRenderer<EducationSection, Unit> {
-    override fun render(element: EducationSection, context: Unit): String = with(element) {
+internal object LatexEducationSectionRenderer : ElementRenderer<EducationSection, LatexRenderContext> {
+    override fun render(element: EducationSection, context: LatexRenderContext): String = with(element) {
         buildString {
-            append(renderLatexTitle())
+            append(renderLatexTitle(context))
             appendLine("""\begin{education}""")
-            for (entry in entries) append(LatexRendererBundle.educationEntryRenderer.render(entry, context))
+            entries.forEachIndexed { index, entry ->
+                append(LatexRendererBundle.educationEntryRenderer.render(entry, context.entry(index)))
+            }
             appendLine("""\end{education}""")
         }
     }
 }
 
-internal object LatexEducationEntryRenderer : ElementRenderer<EducationEntry, Unit> {
-    override fun render(element: EducationEntry, context: Unit): String = with(element) {
-        """    \educationentry{${latexEscape(years)}}{${LatexText.render(description)}}""" + "\n"
+internal object LatexEducationEntryRenderer : ElementRenderer<EducationEntry, LatexRenderContext> {
+    override fun render(element: EducationEntry, context: LatexRenderContext): String = with(element) {
+        """    \educationentry[${context.markKey}]{${latexEscape(years)}}{${LatexText.render(description)}}""" + "\n"
     }
 }

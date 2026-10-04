@@ -2,6 +2,8 @@ package cv.dsl
 
 import cv.model.Cv
 import cv.model.EducationSection
+import cv.model.PageFit
+import cv.model.PdfLayout
 import cv.model.Photo
 import cv.model.ProjectsSection
 import cv.model.ReferencesSection
@@ -15,15 +17,18 @@ import cv.model.WorksSection
 /**
  * Root builder of the CV DSL.
  *
- * Header fields are set as properties; the contact block via [social];
- * sections are appended in call order by the section methods
- * ([summary], [experience], [skills], [projects], [education], [references]).
+ * Header fields are set as properties; the contact block via [social]; the
+ * PDF print settings via [pdf]; sections are appended in call order by the
+ * section methods ([summary], [experience], [skills], [projects],
+ * [education], [references]).
  *
  * Every section method takes:
  *  - `title` — the heading in the PDF,
  *  - `icon` — the FontAwesome command for `\sectionTitle` (e.g. `"faSuitcase"`),
  *  - `id` — the stable LaTeX file / web navigation identifier (defaulted where unambiguous),
- *  - `webTitle` — the heading on the web page, when it differs from `title`.
+ *  - `webTitle` — the heading on the web page, when it differs from `title`,
+ *  - `scope` — the render targets the section appears in,
+ *  - `pageFit` — where the whole section must land in the PDF (verified after compilation).
  */
 @CvDsl
 class CvBuilder {
@@ -48,6 +53,7 @@ class CvBuilder {
 
     private var photo: Photo? = null
     private var social: List<List<Social>> = emptyList()
+    private var pdf: PdfLayout = PdfLayout()
     private val sections = mutableListOf<Section>()
 
     /**
@@ -66,10 +72,16 @@ class CvBuilder {
         social = SocialBuilder().apply(block).rows.toList()
     }
 
+    /** Defines the print settings of the PDF: base font size and page limit. */
+    fun pdf(block: PdfLayoutBuilder.() -> Unit) {
+        pdf = PdfLayoutBuilder().apply(block).build()
+    }
+
     /**
      * Adds a summary (free-form introduction) section.
      *
      * @param scope Render targets the section appears in.
+     * @param pageFit Where the whole section must land in the PDF.
      */
     fun summary(
         title: String,
@@ -77,6 +89,7 @@ class CvBuilder {
         id: String = "summary",
         webTitle: String = title,
         scope: RenderScope = RenderScope.all,
+        pageFit: PageFit = PageFit.Anywhere,
         block: DescriptionBuilder.() -> Unit,
     ) {
         sections += SummarySection(
@@ -86,6 +99,7 @@ class CvBuilder {
             icon = icon,
             text = DescriptionBuilder().apply(block).build(),
             scope = scope,
+            pageFit = pageFit,
         )
     }
 
@@ -93,6 +107,7 @@ class CvBuilder {
      * Adds a section listing positions — used for both work experience and teaching.
      *
      * @param scope Render targets the section appears in.
+     * @param pageFit Where the whole section must land in the PDF.
      */
     fun experience(
         title: String,
@@ -100,6 +115,7 @@ class CvBuilder {
         id: String,
         webTitle: String = title,
         scope: RenderScope = RenderScope.all,
+        pageFit: PageFit = PageFit.Anywhere,
         block: WorksBuilder.() -> Unit,
     ) {
         sections += WorksSection(
@@ -109,6 +125,7 @@ class CvBuilder {
             icon = icon,
             works = WorksBuilder().apply(block).works.toList(),
             scope = scope,
+            pageFit = pageFit,
         )
     }
 
@@ -116,6 +133,7 @@ class CvBuilder {
      * Adds a skills table section.
      *
      * @param scope Render targets the section appears in.
+     * @param pageFit Where the whole section must land in the PDF.
      */
     fun skills(
         title: String,
@@ -123,6 +141,7 @@ class CvBuilder {
         id: String = "skills",
         webTitle: String = title,
         scope: RenderScope = RenderScope.all,
+        pageFit: PageFit = PageFit.Anywhere,
         block: SkillsBuilder.() -> Unit,
     ) {
         sections += SkillsSection(
@@ -132,6 +151,7 @@ class CvBuilder {
             icon = icon,
             entries = SkillsBuilder().apply(block).entries.toList(),
             scope = scope,
+            pageFit = pageFit,
         )
     }
 
@@ -139,6 +159,7 @@ class CvBuilder {
      * Adds a personal-projects section.
      *
      * @param scope Render targets the section appears in.
+     * @param pageFit Where the whole section must land in the PDF.
      */
     fun projects(
         title: String,
@@ -146,6 +167,7 @@ class CvBuilder {
         id: String = "projects",
         webTitle: String = title,
         scope: RenderScope = RenderScope.all,
+        pageFit: PageFit = PageFit.Anywhere,
         block: ProjectsBuilder.() -> Unit,
     ) {
         sections += ProjectsSection(
@@ -155,6 +177,7 @@ class CvBuilder {
             icon = icon,
             projects = ProjectsBuilder().apply(block).projects.toList(),
             scope = scope,
+            pageFit = pageFit,
         )
     }
 
@@ -162,6 +185,7 @@ class CvBuilder {
      * Adds an education timeline section.
      *
      * @param scope Render targets the section appears in.
+     * @param pageFit Where the whole section must land in the PDF.
      */
     fun education(
         title: String,
@@ -169,6 +193,7 @@ class CvBuilder {
         id: String = "education",
         webTitle: String = title,
         scope: RenderScope = RenderScope.all,
+        pageFit: PageFit = PageFit.Anywhere,
         block: EducationBuilder.() -> Unit,
     ) {
         sections += EducationSection(
@@ -178,6 +203,7 @@ class CvBuilder {
             icon = icon,
             entries = EducationBuilder().apply(block).entries.toList(),
             scope = scope,
+            pageFit = pageFit,
         )
     }
 
@@ -185,6 +211,7 @@ class CvBuilder {
      * Adds a references section.
      *
      * @param scope Render targets the section appears in.
+     * @param pageFit Where the whole section must land in the PDF.
      */
     fun references(
         title: String,
@@ -192,6 +219,7 @@ class CvBuilder {
         id: String = "references",
         webTitle: String = title,
         scope: RenderScope = RenderScope.all,
+        pageFit: PageFit = PageFit.Anywhere,
         block: ReferencesBuilder.() -> Unit,
     ) {
         sections += ReferencesSection(
@@ -201,6 +229,7 @@ class CvBuilder {
             icon = icon,
             referees = ReferencesBuilder().apply(block).referees.toList(),
             scope = scope,
+            pageFit = pageFit,
         )
     }
 
@@ -214,6 +243,7 @@ class CvBuilder {
         hyphenation = hyphenation,
         social = social,
         sections = sections.toList(),
+        pdf = pdf,
     )
 }
 

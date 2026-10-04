@@ -3,7 +3,7 @@ package cv.render.latex
 import cv.render.RendererBundle
 
 /** Complete LaTeX renderer set; every required model renderer is declared here. */
-internal object LatexRendererBundle : RendererBundle<Unit> {
+internal object LatexRendererBundle : RendererBundle<LatexRenderContext> {
     override val summarySectionRenderer = LatexSummarySectionRenderer
     override val worksSectionRenderer = LatexWorksSectionRenderer
     override val skillsSectionRenderer = LatexSkillsSectionRenderer

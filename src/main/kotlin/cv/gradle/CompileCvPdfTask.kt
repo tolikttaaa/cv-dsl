@@ -1,5 +1,8 @@
 package cv.gradle
 
+import cv.layout.LayoutManifest
+import cv.layout.PageMarks
+import cv.layout.PdfLayoutReport
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
@@ -7,13 +10,20 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
+import java.io.File
 
-/** Compiles generated LaTeX sources twice so references and page data settle. */
+/**
+ * Compiles generated LaTeX sources twice so references and page data settle,
+ * then verifies the PDF layout rules (page limit, per-element page rules)
+ * against the pages LuaLaTeX recorded. Any violated rule fails the task; the
+ * compiled PDF is still written so the layout can be inspected.
+ */
 @DisableCachingByDefault(because = "Output depends on the locally installed LuaLaTeX distribution")
 abstract class CompileCvPdfTask : DefaultTask() {
     @get:Input
@@ -28,6 +38,11 @@ abstract class CompileCvPdfTask : DefaultTask() {
 
     @get:OutputFile
     abstract val logFile: RegularFileProperty
+
+    /** Where every tracked element landed in the PDF; not written when unset. */
+    @get:Optional
+    @get:OutputFile
+    abstract val layoutReportFile: RegularFileProperty
 
     @TaskAction
     fun compile() {
@@ -58,6 +73,40 @@ abstract class CompileCvPdfTask : DefaultTask() {
             }
         }
         logger.lifecycle("Compiled ${pdfFile.get().asFile}")
+        verifyLayout(latexDir, outputDir.resolve("${mainFile.nameWithoutExtension}.${PageMarks.EXTENSION}"))
+    }
+
+    private fun verifyLayout(latexDir: File, marksFile: File) {
+        val manifestFile = latexDir.resolve(LayoutManifest.FILE_NAME)
+        if (!manifestFile.isFile) {
+            logger.info("No PDF layout manifest in $latexDir; skipping layout verification.")
+            return
+        }
+        val manifest = LayoutManifest.parse(manifestFile.readText())
+        if (!marksFile.isFile) {
+            if (manifest.hasRules) {
+                throw GradleException(
+                    "LuaLaTeX did not record page marks in $marksFile, so the PDF layout rules cannot be verified. " +
+                        "Regenerate the LaTeX sources with this cv-dsl version.",
+                )
+            }
+            return
+        }
+        val report = PdfLayoutReport.of(manifest, PageMarks.parse(marksFile.readText()))
+        val reportFile = layoutReportFile.orNull?.asFile
+        reportFile?.apply { parentFile.mkdirs() }?.writeText(report.render())
+        val violations = report.violations
+        if (violations.isNotEmpty()) {
+            throw GradleException(
+                buildString {
+                    appendLine("${report.summary}:")
+                    violations.forEach { appendLine("  - $it") }
+                    append("Shorten the content or lower fontSize in the CV's pdf { } block")
+                    append(reportFile?.let { "; every element's pages are listed in $it." } ?: ".")
+                },
+            )
+        }
+        logger.lifecycle(report.summary)
     }
 
     private companion object {

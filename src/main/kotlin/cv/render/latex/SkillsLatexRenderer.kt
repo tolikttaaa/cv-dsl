@@ -5,19 +5,22 @@ import cv.model.SkillsSection
 import cv.render.ElementRenderer
 
 /** Renders the skills keyword table. */
-internal object LatexSkillsSectionRenderer : ElementRenderer<SkillsSection, Unit> {
-    override fun render(element: SkillsSection, context: Unit): String = with(element) {
+internal object LatexSkillsSectionRenderer : ElementRenderer<SkillsSection, LatexRenderContext> {
+    override fun render(element: SkillsSection, context: LatexRenderContext): String = with(element) {
         buildString {
-            append(renderLatexTitle())
+            append(renderLatexTitle(context))
             appendLine("""\begin{keywords}""")
-            for (entry in entries) append(LatexRendererBundle.skillEntryRenderer.render(entry, context))
+            entries.forEachIndexed { index, entry ->
+                append(LatexRendererBundle.skillEntryRenderer.render(entry, context.entry(index)))
+            }
             appendLine("""\end{keywords}""")
         }
     }
 }
 
-internal object LatexSkillEntryRenderer : ElementRenderer<SkillEntry, Unit> {
-    override fun render(element: SkillEntry, context: Unit): String = with(element) {
-        """    \keywordsentry{${latexEscape(category)}}{${latexEscape(skills.joinToString(", "))}}""" + "\n"
+internal object LatexSkillEntryRenderer : ElementRenderer<SkillEntry, LatexRenderContext> {
+    override fun render(element: SkillEntry, context: LatexRenderContext): String = with(element) {
+        val values = latexEscape(skills.joinToString(", "))
+        """    \keywordsentry[${context.markKey}]{${latexEscape(category)}}{$values}""" + "\n"
     }
 }
