@@ -19,6 +19,7 @@ Kotlin DSL → immutable model → renderer bundle → generated files
 | `cv.render.web` | Safe HTML and bundled browser assets | LaTeX behavior |
 | `cv.render.latex` | Escaped LaTeX and bundled class/fonts | Browser behavior |
 | `cv.render.markdown` | Escaped single-file Markdown document | HTML and LaTeX behavior |
+| `cv.layout` | PDF layout manifest, page marks and rule verification | LaTeX markup, Gradle lifecycle |
 | `cv.generation` | Output selection and consumer asset copying | Gradle lifecycle |
 | `cv.gradle` | Consumer tasks and local tool orchestration | CV content |
 
@@ -32,6 +33,24 @@ contact carries a `RenderScope` (allow-list plus deny-list of `RenderTarget`s,
 defaulting to "everywhere"). Each `CvRenderer` prunes the model once through
 `Cv.visibleTo(target)` before rendering, so section renderers never need to
 consult scopes.
+
+## PDF layout verification
+
+Page rules (`Cv.pdf.maxPages`, `PageFit` on sections and entries) are checked
+against the compiled PDF in three steps:
+
+1. `LatexRenderer` writes `layout.tsv` next to the sources: every tracked
+   element with its key, label and rule. Section keys are their ids; entry
+   keys extend them (`experience/2`), so an element's pages include its
+   entries' pages. `LatexRenderContext` hands each renderer its key.
+2. `cvdsl.cls` records `mark <key> <page>` lines in `cv.pagemarks` while the
+   PDF is shipped out (`\cvpagemark`, via the optional first argument of
+   `\sectionTitle` and every entry command), followed by the page count.
+3. `CompileCvPdfTask` combines both into a `PdfLayoutReport`, writes
+   `cv-layout.txt` and fails on any violated rule.
+
+Marks sit inside an element's boxes, or right after a section title followed
+by `\nobreak`, so they never add a page breakpoint or move a baseline.
 
 ## Public compatibility
 

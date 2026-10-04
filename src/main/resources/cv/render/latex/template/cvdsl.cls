@@ -10,6 +10,11 @@
 %%   sections:  \sectionTitle + the summary / works / projects / keywords /
 %%              education / referees environments and their entry commands
 %%   inline:    \link (colored hyperlink), \cvtag (rounded keyword chip)
+%%   layout:    \cvfontsize (base font size), \cvpagemark (page bookkeeping)
+%%
+%% \sectionTitle and every entry command take an optional first argument: the
+%% page-mark key of the element. When present, the pages the element lands on
+%% are recorded in <jobname>.pagemarks so the build can verify layout rules.
 %%
 %% Class options:
 %%   green | red | indigo | orange  – accent color themes
@@ -45,6 +50,7 @@
 
 \RequirePackage[english]{babel}               % hyphenation patterns, dates
 \RequirePackage{fontspec}                     % OpenType fonts (LuaLaTeX)
+\RequirePackage{scrextend}                    % \changefontsizes for \cvfontsize (before hyperref)
 \RequirePackage{parskip}                      % paragraph spacing instead of indent
 \RequirePackage[dvipsnames]{xcolor}           % named colors + color mixing
 \RequirePackage[margin=1.5cm]{geometry}       % page margins
@@ -53,6 +59,7 @@
 \RequirePackage{titlesec}                     % \section format (rule under title)
 \RequirePackage{enumitem}                     % compact bullet lists
 \RequirePackage{longtable}                    % section body containers
+\RequirePackage{tabularx}                     % full-width skills table
 \RequirePackage{etoolbox}                     % \ifundef / \ifdef option tests
 \RequirePackage{tikz}                         % \cvtag chips + \foreach over tags
 \RequirePackage{graphicx}                     % profile photo
@@ -127,6 +134,35 @@
     ItalicFont = SourceSansPro-LightIt]
 }
 
+% \cvfontsize{size} — base font size, e.g. 9.5pt (preamble only; default 10pt).
+% Every other size (\small, \Large, keyword chips, …) scales with it. The
+% paragraph skip is recomputed because parskip derived it from the old size.
+\newcommand*{\cvfontsize}[1]{%
+  \changefontsizes{#1}%
+  \setlength{\parskip}{0.5\baselineskip plus 2pt}%
+}
+\@onlypreamble\cvfontsize
+
+%% ─── Page marks ─────────────────────────────────────────────────────────────
+%% \cvpagemark{key} writes "mark <key> <page>" to <jobname>.pagemarks when the
+%% page holding it is shipped out, so the page number is final. The file ends
+%% with "pages <total>". Marks are placed inside the boxes of an element (never
+%% as leading items of a [t] minipage, which would shift its baseline) or right
+%% after a section title, followed by \nobreak, so they add no breakpoints.
+
+\newwrite\cv@pagemarks
+\AtBeginDocument{\immediate\openout\cv@pagemarks=\jobname.pagemarks\relax}
+\AtEndDocument{%
+  \clearpage
+  \immediate\write\cv@pagemarks{pages \the\numexpr\value{page}-1\relax}%
+  \immediate\closeout\cv@pagemarks
+}
+
+\newcommand*{\cvpagemark}[1]{\write\cv@pagemarks{mark #1 \the\c@page}}
+
+% \cv@mark{key} — \cvpagemark for a possibly empty optional key; \unskip keeps a
+% trailing space of the preceding text from ending up in front of the mark.
+\newcommand*{\cv@mark}[1]{\ifblank{#1}{}{\unskip\cvpagemark{#1}}}
 %% ─── Icon aliases ───────────────────────────────────────────────────────────
 %% Semantic names for the FontAwesome glyphs used by the contact and referee
 %% commands, so a glyph can be swapped in one place.
@@ -245,10 +281,11 @@
 
 %% ─── Section title ──────────────────────────────────────────────────────────
 
-% \sectionTitle{title}{\faIcon} — accent-colored icon + small-caps title;
-% the PDF bookmark gets the plain text.
-\newcommand\sectionTitle[2]{%
-  \section{\texorpdfstring{\color{accentcolor}#2\enspace\textsc{#1}}{#1}}%
+% \sectionTitle[key]{title}{\faIcon} — accent-colored icon + small-caps title;
+% the PDF bookmark gets the plain text. The optional key marks the title page.
+\newcommand\sectionTitle[3][]{%
+  \section{\texorpdfstring{\color{accentcolor}#3\enspace\textsc{#2}}{#2}}%
+  \ifblank{#1}{}{\cvpagemark{#1}\nobreak}%
 }
 
 %% ─── Section body layout ────────────────────────────────────────────────────
@@ -281,22 +318,24 @@
   \end{longtable}%
 }
 
-% \summaryText{text}
-\newcommand\summaryText[1]{%
-  \begin{minipage}[t]{\dimexpr(\linewidth) - 1.5em}#1\end{minipage}\\*%
+% \summaryText[key]{text}
+\newcommand\summaryText[2][]{%
+  \begin{minipage}[t]{\dimexpr(\linewidth) - 1.5em}#2\cv@mark{#1}\end{minipage}\\*%
 }
 
 %% ─── Keywords (skills table) ────────────────────────────────────────────────
+%% Categories right-aligned at their natural width; the values column takes
+%% the rest of the line at any font size.
 
 \newenvironment{keywords}{%
   \renewcommand{\arraystretch}{1.1}%
-  \begin{tabular}{r p{13cm}}%
+  \tabularx{\linewidth}{r X}%
 }{%
-  \end{tabular}%
+  \endtabularx
 }
 
-% \keywordsentry{category}{comma-separated values}
-\newcommand\keywordsentry[2]{\textbf{#1} & #2\\}
+% \keywordsentry[key]{category}{comma-separated values}
+\newcommand\keywordsentry[3][]{\textbf{#2} & #3\cv@mark{#1}\\}
 
 %% ─── Works (experience / teaching) ──────────────────────────────────────────
 
@@ -306,15 +345,15 @@
   \end{longtable}%
 }
 
-% \work{role}{company}{location}{dates}{description}{tags}
+% \work[key]{role}{company}{location}{dates}{description}{tags}
 % Header line: bold role, small-caps company, location — dates flushed right.
 % The header row is glued to the body row; breaks happen between entries.
-\newcommand\work[6]{%
+\newcommand\work[7][]{%
   \noindent
-  \makebox[\dimexpr(\linewidth) - 1.5em][l]{\textbf{#1, \textsc{#2}, #3}\hfill\textbf{#4}}\\*
+  \makebox[\dimexpr(\linewidth) - 1.5em][l]{\cv@mark{#1}\textbf{#2, \textsc{#3}, #4}\hfill\textbf{#5}}\\*
   \begin{minipage}[t]{\dimexpr(\linewidth) - 1.5em}
-    \begin{minipage}[t]{\dimexpr(\linewidth)}#5\end{minipage}\\
-    \footnotesize{\foreach \n in {#6}{\cvtag{\n}\ }}\\
+    \begin{minipage}[t]{\dimexpr(\linewidth)}#6\end{minipage}\\
+    \footnotesize{\foreach \n in {#7}{\cvtag{\n}\ }}\cv@mark{#1}\\
   \end{minipage}\\%
 }
 
@@ -326,12 +365,12 @@
   \end{longtable}%
 }
 
-% \project{name}{company}{dates}{description}{tags}
-\newcommand\project[5]{%
+% \project[key]{name}{company}{dates}{description}{tags}
+\newcommand\project[6][]{%
   \begin{minipage}[t]{\dimexpr(\linewidth) - 1.5em}
-    \textbf{\textsc{#1}}, #2\hfill\textbf{#3}\smallskip\\
-    #4\par\smallskip
-    \footnotesize{\foreach \n in {#5}{\cvtag{\n}\ }}\\
+    \textbf{\textsc{#2}}, #3\hfill\textbf{#4}\smallskip\\
+    #5\par\smallskip
+    \footnotesize{\foreach \n in {#6}{\cvtag{\n}\ }}\cv@mark{#1}\\
   \end{minipage}\\%
 }
 
@@ -349,10 +388,10 @@
   \end{longtable}%
 }
 
-% \educationentry{years}{description}
-\newcommand\educationentry[2]{%
-  \begin{minipage}[t]{\educolumn}\raggedleft\textbf{#1}\end{minipage}\hspace{1em}%
-  \begin{minipage}[t]{\dimexpr(\linewidth) - 1.5em - \educolumn - 1em}#2\end{minipage}\\%
+% \educationentry[key]{years}{description}
+\newcommand\educationentry[3][]{%
+  \begin{minipage}[t]{\educolumn}\raggedleft\textbf{#2}\end{minipage}\hspace{1em}%
+  \begin{minipage}[t]{\dimexpr(\linewidth) - 1.5em - \educolumn - 1em}#3\cv@mark{#1}\end{minipage}\\%
 }
 
 %% ─── Referees ───────────────────────────────────────────────────────────────
@@ -360,13 +399,13 @@
 
 \newenvironment{referees}{}{\hfill\bigskip}
 
-% \referee{name}{role}{company}{period}{email}
-\newcommand*\referee[5]{%
+% \referee[key]{name}{role}{company}{period}{email}
+\newcommand*\referee[6][]{%
   \hspace{1em}%
   \begin{minipage}[t]{\dimexpr(\linewidth/3) - 3em}
-    \textbf{#1}\\[2pt]
-    {\small\textcolor{symbolcolor}{\infoSymbol}\enspace\emph{#2}}\\[1pt]
-    {\small\textcolor{symbolcolor}{\markerSymbol}\enspace\textsc{#3}\enspace(#4)}\\[1pt]
-    {\small\textcolor{symbolcolor}{\mailSymbol}\enspace\href{mailto:#5}{#5}}
+    \textbf{#2}\\[2pt]
+    {\small\textcolor{symbolcolor}{\infoSymbol}\enspace\emph{#3}}\\[1pt]
+    {\small\textcolor{symbolcolor}{\markerSymbol}\enspace\textsc{#4}\enspace(#5)}\\[1pt]
+    {\small\textcolor{symbolcolor}{\mailSymbol}\enspace\href{mailto:#6}{#6}}\cv@mark{#1}
   \end{minipage}%
 }

@@ -1,7 +1,8 @@
 package cv.dsl
 
-import cv.model.Organization
 import cv.model.EducationEntry
+import cv.model.Organization
+import cv.model.PageFit
 import cv.model.Project
 import cv.model.Referee
 import cv.model.RenderScope
@@ -25,6 +26,7 @@ class WorksBuilder {
      * @param dates Human-readable period, e.g. `"May 2021 – January 2023"`.
      * @param tags Technology keywords shown as chips under the description.
      * @param scope Render targets the element appears in.
+     * @param pageFit Where the position must land in the PDF.
      * @param description Body text: paragraphs and bullet lists.
      */
     fun work(
@@ -34,6 +36,7 @@ class WorksBuilder {
         dates: String,
         tags: List<String>,
         scope: RenderScope = RenderScope.all,
+        pageFit: PageFit = PageFit.Anywhere,
         description: DescriptionBuilder.() -> Unit,
     ) {
         works += Work(
@@ -44,6 +47,7 @@ class WorksBuilder {
             description = DescriptionBuilder().apply(description).build(),
             tags = tags,
             scope = scope,
+            pageFit = pageFit,
         )
     }
 }
@@ -59,9 +63,15 @@ class SkillsBuilder {
      * Adds a row: a [category] and the [skills] belonging to it.
      *
      * @param scope Render targets the element appears in.
+     * @param pageFit Where the row must land in the PDF.
      */
-    fun entry(category: String, skills: List<String>, scope: RenderScope = RenderScope.all) {
-        entries += SkillEntry(category, skills, scope)
+    fun entry(
+        category: String,
+        skills: List<String>,
+        scope: RenderScope = RenderScope.all,
+        pageFit: PageFit = PageFit.Anywhere,
+    ) {
+        entries += SkillEntry(category, skills, scope, pageFit)
     }
 }
 
@@ -81,6 +91,7 @@ class ProjectsBuilder {
      * @param dates Human-readable period, e.g. `"2022"` or `"May 2021 – January 2023"`.
      * @param tags Technology keywords shown as chips under the description.
      * @param scope Render targets the element appears in.
+     * @param pageFit Where the project must land in the PDF.
      * @param description Body text: paragraphs and bullet lists.
      */
     fun project(
@@ -89,6 +100,7 @@ class ProjectsBuilder {
         dates: String,
         tags: List<String>,
         scope: RenderScope = RenderScope.all,
+        pageFit: PageFit = PageFit.Anywhere,
         description: DescriptionBuilder.() -> Unit,
     ) {
         projects += Project(
@@ -98,6 +110,7 @@ class ProjectsBuilder {
             description = DescriptionBuilder().apply(description).build(),
             tags = tags,
             scope = scope,
+            pageFit = pageFit,
         )
     }
 }
@@ -113,13 +126,15 @@ class EducationBuilder {
      * Adds a milestone: a [years] label and a free-form rich-text [description].
      *
      * @param scope Render targets the element appears in.
+     * @param pageFit Where the milestone must land in the PDF.
      */
     fun entry(
         years: String,
         scope: RenderScope = RenderScope.all,
+        pageFit: PageFit = PageFit.Anywhere,
         description: TextBuilder.() -> Unit,
     ) {
-        entries += EducationEntry(years, richText(description), scope)
+        entries += EducationEntry(years, richText(description), scope, pageFit)
     }
 
     /**
@@ -132,6 +147,7 @@ class EducationBuilder {
      * @param institution School or university.
      * @param location City / country of the institution.
      * @param scope Render targets the element appears in.
+     * @param pageFit Where the milestone must land in the PDF.
      */
     fun entry(
         years: String,
@@ -139,13 +155,14 @@ class EducationBuilder {
         institution: Organization,
         location: String,
         scope: RenderScope = RenderScope.all,
+        pageFit: PageFit = PageFit.Anywhere,
     ) {
         entries += EducationEntry(years, richText {
             +"$degree: "
             val url = institution.url
             if (url != null) link(url) { bold(institution.name) } else bold(institution.name)
             +", $location"
-        }, scope)
+        }, scope, pageFit)
     }
 }
 
@@ -161,6 +178,7 @@ class ReferencesBuilder {
      * [Organization.url] is set, but not emphasized — the referee block stays compact.
      *
      * @param scope Render targets the element appears in.
+     * @param pageFit Where the reference must land in the PDF.
      */
     fun referee(
         name: String,
@@ -169,7 +187,8 @@ class ReferencesBuilder {
         period: String,
         email: String,
         scope: RenderScope = RenderScope.all,
+        pageFit: PageFit = PageFit.Anywhere,
     ) {
-        referees += Referee(name, role, company, period, email, scope)
+        referees += Referee(name, role, company, period, email, scope, pageFit)
     }
 }
