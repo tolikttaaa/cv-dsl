@@ -256,6 +256,22 @@
 %% longtable whose rows are minipages of width \linewidth - 1.5em. longtable
 %% centers its content, which gives all these sections one common left edge —
 %% keep that invariant when adding new section types.
+%%
+%% Page breaks are allowed between entries only: an entry never splits, and a
+%% section title always stays with the first entry. longtable itself allows a
+%% break right before the table (\penalty\z@ in \LT@start); every longtable
+%% here follows a section title, so that breakpoint is removed. \LT@start is
+%% defined under expl3 syntax, so it is edited as a token list rather than
+%% retokenized with \patchcmd.
+
+\ExplSyntaxOn
+\tl_if_in:NnTF \LT@start { \penalty \z@ }
+  { \tl_greplace_once:Nnn \LT@start { \penalty \z@ } { \penalty \@M } }
+  {
+    \ClassError { cvdsl } { Cannot~keep~section~titles~with~their~first~entry }
+      { The~installed~longtable~package~no~longer~defines~\token_to_str:N \LT@start~as~expected. }
+  }
+\ExplSyntaxOff
 
 %% ─── Summary ────────────────────────────────────────────────────────────────
 
@@ -292,13 +308,14 @@
 
 % \work{role}{company}{location}{dates}{description}{tags}
 % Header line: bold role, small-caps company, location — dates flushed right.
+% The header row is glued to the body row; breaks happen between entries.
 \newcommand\work[6]{%
   \noindent
-  \makebox[\dimexpr(\linewidth) - 1.5em][l]{\textbf{#1, \textsc{#2}, #3}\hfill\textbf{#4}}\\
+  \makebox[\dimexpr(\linewidth) - 1.5em][l]{\textbf{#1, \textsc{#2}, #3}\hfill\textbf{#4}}\\*
   \begin{minipage}[t]{\dimexpr(\linewidth) - 1.5em}
     \begin{minipage}[t]{\dimexpr(\linewidth)}#5\end{minipage}\\
     \footnotesize{\foreach \n in {#6}{\cvtag{\n}\ }}\\
-  \end{minipage}\\*%
+  \end{minipage}\\%
 }
 
 %% ─── Projects ───────────────────────────────────────────────────────────────
@@ -315,7 +332,7 @@
     \textbf{\textsc{#1}}, #2\hfill\textbf{#3}\smallskip\\
     #4\par\smallskip
     \footnotesize{\foreach \n in {#5}{\cvtag{\n}\ }}\\
-  \end{minipage}\\*%
+  \end{minipage}\\%
 }
 
 %% ─── Education ──────────────────────────────────────────────────────────────
