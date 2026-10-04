@@ -179,8 +179,10 @@
 
 %% ─── Inline helpers ─────────────────────────────────────────────────────────
 
-% \link{url}{label} — hyperlink typeset in the theme link color.
-\newcommand\link[2]{\color{linkcolor}\href{#1}{#2}\color{Black}}
+% \link{url}{label} — hyperlink typeset in the theme link color. The color is
+% scoped to the label: a trailing \color{…} would swallow the space after the
+% link and reset the surrounding text to black.
+\newcommand\link[2]{\textcolor{linkcolor}{\href{#1}{#2}}}
 
 % \cvtag{text} — small rounded-corner chip used for technology keywords.
 \newcommand{\cvtag}[1]{%
