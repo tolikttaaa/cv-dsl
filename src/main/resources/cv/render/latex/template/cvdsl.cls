@@ -176,6 +176,8 @@
 \newcommand{\leetcodeSymbol}{\faLink}
 \newcommand{\mobileSymbol}  {\faMobile}
 \newcommand{\githubSymbol}  {\faGithub}
+\newcommand{\gitlabSymbol}  {\faGitlab}
+\newcommand{\bitbucketSymbol}{\faBitbucket}
 
 %% ─── Inline helpers ─────────────────────────────────────────────────────────
 

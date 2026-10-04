@@ -41,8 +41,21 @@ data class SummarySection(
 /**
  * An organization a position or project belongs to. Renderers always emphasize
  * the [name] in bold and wrap it in a hyperlink when [url] is present.
+ *
+ * @property host Code-hosting platform the organization is a repository on;
+ *   renderers append it to the name with the platform's icon, inside the link.
  */
-data class Organization(val name: String, val url: String? = null)
+data class Organization(val name: String, val url: String? = null, val host: CodeHost? = null) {
+    companion object {
+        /**
+         * The [repository] of [owner] on [host], labeled with the repository
+         * name and linked to it, e.g. `repository(CodeHost.GITHUB, "ada", "engine")`
+         * for `https://github.com/ada/engine`.
+         */
+        fun repository(host: CodeHost, owner: String, repository: String) =
+            Organization(name = repository, url = "${host.baseUrl}/$owner/$repository", host = host)
+    }
+}
 
 /** One employment (or teaching) position inside a [WorksSection]. */
 data class Work(

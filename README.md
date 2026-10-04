@@ -142,6 +142,28 @@ cvGeneration {
 }
 ```
 
+## Organizations and repositories
+
+Positions, projects and references point to an `Organization`, whose name is
+linked when it has a URL. A project that lives on GitHub, GitLab or Bitbucket
+can reference its repository instead. It renders as the repository name, the
+platform's icon and the platform's name, all inside one link (for example
+`cv-dsl | <GitHub icon> GitHub`):
+
+```kotlin
+import cv.model.CodeHost
+import cv.model.Organization
+
+project(
+    name = "Kotlin DSL for CV generation",
+    company = Organization.repository(CodeHost.GITHUB, "tolikttaaa", "cv-dsl"),
+    dates = "2026",
+    tags = listOf("Kotlin"),
+) {
+    paragraph("…")
+}
+```
+
 ## Rich text
 
 Descriptions support paragraphs, bullets and composable inline styles. Plain

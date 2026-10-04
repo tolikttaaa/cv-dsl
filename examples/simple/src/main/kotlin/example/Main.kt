@@ -2,6 +2,7 @@ package example
 
 import cv.dsl.cv
 import cv.generation.CvApplication
+import cv.model.CodeHost
 import cv.model.Organization
 import cv.model.PageFit
 import cv.model.RenderScope
@@ -51,6 +52,18 @@ private val simpleCv = cv {
                 item("Published the first algorithm designed for a machine.") { bold("first algorithm") }
                 item("Explained how machines could manipulate symbols beyond arithmetic.")
             }
+        }
+    }
+
+    projects("Projects", "faLaptop") {
+        project(
+            name = "Notes on the Analytical Engine",
+            // Rendered as "analytical-engine-notes | <GitHub icon> GitHub", linked to the repository.
+            company = Organization.repository(CodeHost.GITHUB, "ada", "analytical-engine-notes"),
+            dates = "1843",
+            tags = listOf("Algorithms", "Technical writing"),
+        ) {
+            paragraph("Annotated translation that contains the first published algorithm.")
         }
     }
 

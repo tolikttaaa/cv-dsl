@@ -1,5 +1,6 @@
 package cv.render.web
 
+import cv.model.CodeHost
 import cv.model.Organization
 import cv.model.Section
 import cv.model.Social
@@ -23,11 +24,20 @@ internal fun List<String>.renderWeb(): String = if (isEmpty()) "" else
     "<div class=\"tags\">${joinToString("") { "<span class=\"tag\">${h(it)}</span>" }}</div>"
 
 internal fun Organization.renderWeb(emphasized: Boolean): String {
-    val label = if (emphasized) "<strong>${h(name)}</strong>" else h(name)
+    val name = if (emphasized) "<strong>${h(name)}</strong>" else h(name)
+    val label = host?.let { "$name | <i class=\"fa-brands fa-${it.webIcon}\"></i> ${h(it.displayName)}" } ?: name
     return url?.let {
         "<a href=\"${h(it)}\" target=\"_blank\" rel=\"noopener\">$label</a>"
     } ?: label
 }
+
+/** Font Awesome brand icon of a code host. */
+private val CodeHost.webIcon: String
+    get() = when (this) {
+        CodeHost.GITHUB -> "github"
+        CodeHost.GITLAB -> "gitlab"
+        CodeHost.BITBUCKET -> "bitbucket"
+    }
 
 internal object WebSocialRenderer : ElementRenderer<Social, WebRenderContext> {
     override fun render(element: Social, context: WebRenderContext): String {
