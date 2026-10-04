@@ -3,6 +3,20 @@
 All notable changes to this project are documented here. Releases follow
 [Semantic Versioning](https://semver.org/) and are automated by Release Please.
 
+## [0.3.0](https://github.com/tolikttaaa/cv-dsl/compare/v0.2.0...v0.3.0) (2026-10-04)
+
+
+### Features
+
+* configurable PDF font size and verified page layout rules ([19d0785](https://github.com/tolikttaaa/cv-dsl/commit/19d0785a1372bbbaeaab0e695c9d6c7d72239aca))
+* show the code host of repository organizations ([#17](https://github.com/tolikttaaa/cv-dsl/issues/17)) ([c886322](https://github.com/tolikttaaa/cv-dsl/commit/c886322a4a3589b94ff060f4fa4d0531d283c968))
+
+
+### Bug Fixes
+
+* keep LaTeX entries and section titles together across page breaks ([19d0785](https://github.com/tolikttaaa/cv-dsl/commit/19d0785a1372bbbaeaab0e695c9d6c7d72239aca))
+* keep the space after a LaTeX link ([#15](https://github.com/tolikttaaa/cv-dsl/issues/15)) ([8eb13c2](https://github.com/tolikttaaa/cv-dsl/commit/8eb13c209e40d2215a62ebacdcc31e214e08609a))
+
 ## [0.2.0](https://github.com/tolikttaaa/cv-dsl/compare/v0.1.3...v0.2.0) (2026-07-19)
 
 
