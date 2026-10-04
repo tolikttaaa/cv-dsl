@@ -1,6 +1,7 @@
 package cv.render.latex
 
 import cv.model.Bullets
+import cv.model.CodeHost
 import cv.model.Description
 import cv.model.Organization
 import cv.model.Paragraph
@@ -24,9 +25,19 @@ internal object LatexSocialRenderer : ElementRenderer<Social, LatexRenderContext
 }
 
 internal fun Organization.renderLatex(emphasized: Boolean): String {
-    val label = if (emphasized) """\textbf{${latexEscape(name)}}""" else latexEscape(name)
+    val text = latexEscape(name) +
+        host?.let { """ \textbar{} ${latexEscape(it.displayName)}\enspace\${it.latexSymbol}""" }.orEmpty()
+    val label = if (emphasized) """\textbf{$text}""" else text
     return url?.let { """\link{${LatexText.escapeUrl(it)}}{$label}""" } ?: label
 }
+
+/** `cvdsl.cls` icon alias of a code host. */
+private val CodeHost.latexSymbol: String
+    get() = when (this) {
+        CodeHost.GITHUB -> "githubSymbol"
+        CodeHost.GITLAB -> "gitlabSymbol"
+        CodeHost.BITBUCKET -> "bitbucketSymbol"
+    }
 
 internal fun Description.renderLatexBlocks(indent: Int): String = buildString {
     val pad = "    ".repeat(indent)
