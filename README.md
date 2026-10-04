@@ -147,8 +147,8 @@ cvGeneration {
 Positions, projects and references point to an `Organization`, whose name is
 linked when it has a URL. A project that lives on GitHub, GitLab or Bitbucket
 can reference its repository instead. It renders as the repository name, the
-platform's icon and the platform's name, all inside one link (for example
-`cv-dsl | <GitHub icon> GitHub`):
+platform's name and its icon, in one style and inside one link (for example
+`cv-dsl | GitHub <GitHub icon>`):
 
 ```kotlin
 import cv.model.CodeHost

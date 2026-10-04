@@ -58,7 +58,7 @@ private val simpleCv = cv {
     projects("Projects", "faLaptop") {
         project(
             name = "Notes on the Analytical Engine",
-            // Rendered as "analytical-engine-notes | <GitHub icon> GitHub", linked to the repository.
+            // Rendered as "analytical-engine-notes | GitHub <GitHub icon>", linked to the repository.
             company = Organization.repository(CodeHost.GITHUB, "ada", "analytical-engine-notes"),
             dates = "1843",
             tags = listOf("Algorithms", "Technical writing"),

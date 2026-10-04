@@ -25,8 +25,9 @@ internal object LatexSocialRenderer : ElementRenderer<Social, LatexRenderContext
 }
 
 internal fun Organization.renderLatex(emphasized: Boolean): String {
-    val name = if (emphasized) """\textbf{${latexEscape(name)}}""" else latexEscape(name)
-    val label = host?.let { """$name \textbar{} \${it.latexSymbol}\enspace ${latexEscape(it.displayName)}""" } ?: name
+    val text = latexEscape(name) +
+        host?.let { """ \textbar{} ${latexEscape(it.displayName)}\enspace\${it.latexSymbol}""" }.orEmpty()
+    val label = if (emphasized) """\textbf{$text}""" else text
     return url?.let { """\link{${LatexText.escapeUrl(it)}}{$label}""" } ?: label
 }
 

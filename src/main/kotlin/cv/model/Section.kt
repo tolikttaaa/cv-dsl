@@ -43,7 +43,8 @@ data class SummarySection(
  * the [name] in bold and wrap it in a hyperlink when [url] is present.
  *
  * @property host Code-hosting platform the organization is a repository on;
- *   renderers append it to the name with the platform's icon, inside the link.
+ *   renderers append its name and icon to the organization name, in the same
+ *   style and inside the same link.
  */
 data class Organization(val name: String, val url: String? = null, val host: CodeHost? = null) {
     companion object {

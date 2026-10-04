@@ -4,12 +4,11 @@ import cv.model.Organization
 import cv.model.Social
 import cv.render.ElementRenderer
 
-/** Renders an organization as an optionally emphasized Markdown link, followed by its code host. */
+/** Renders an organization, including its code host, as an optionally emphasized Markdown link. */
 internal fun Organization.renderMarkdown(emphasized: Boolean): String {
-    val label = MarkdownText.escape(name)
+    val label = MarkdownText.escape(name) + host?.let { " \\| ${MarkdownText.escape(it.displayName)}" }.orEmpty()
     val linkedLabel = url?.let { "[$label](${MarkdownText.escapeUrl(it)})" } ?: label
-    val emphasizedLabel = if (emphasized) "**$linkedLabel**" else linkedLabel
-    return host?.let { "$emphasizedLabel \\| ${MarkdownText.escape(it.displayName)}" } ?: emphasizedLabel
+    return if (emphasized) "**$linkedLabel**" else linkedLabel
 }
 
 /** Renders tags as code spans separated by middle dots. */

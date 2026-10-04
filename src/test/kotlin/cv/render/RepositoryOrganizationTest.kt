@@ -25,41 +25,41 @@ class RepositoryOrganizationTest {
     }
 
     @Test
-    fun `LaTeX appends the host icon and name inside the link`() {
+    fun `LaTeX appends the host name and icon in the same style inside the link`() {
         assertEquals(
-            """\link{https://github.com/ada/engine}{\textbf{engine} \textbar{} \githubSymbol\enspace GitHub}""",
+            """\link{https://github.com/ada/engine}{\textbf{engine \textbar{} GitHub\enspace\githubSymbol}}""",
             engine.renderLatex(emphasized = true),
         )
         assertEquals(
-            """notes \textbar{} \gitlabSymbol\enspace GitLab""",
+            """notes \textbar{} GitLab\enspace\gitlabSymbol""",
             Organization("notes", host = CodeHost.GITLAB).renderLatex(emphasized = false),
         )
         assertEquals(
-            """tables \textbar{} \bitbucketSymbol\enspace Bitbucket""",
+            """tables \textbar{} Bitbucket\enspace\bitbucketSymbol""",
             Organization("tables", host = CodeHost.BITBUCKET).renderLatex(emphasized = false),
         )
     }
 
     @Test
-    fun `web appends the host brand icon and name inside the link`() {
+    fun `web appends the host name and brand icon in the same style inside the link`() {
         assertEquals(
             "<a href=\"https://github.com/ada/engine\" target=\"_blank\" rel=\"noopener\">" +
-                "<strong>engine</strong> | <i class=\"fa-brands fa-github\"></i> GitHub</a>",
+                "<strong>engine | GitHub <i class=\"fa-brands fa-github\"></i></strong></a>",
             engine.renderWeb(emphasized = true),
         )
         assertEquals(
-            "notes | <i class=\"fa-brands fa-gitlab\"></i> GitLab",
+            "notes | GitLab <i class=\"fa-brands fa-gitlab\"></i>",
             Organization("notes", host = CodeHost.GITLAB).renderWeb(emphasized = false),
         )
         assertEquals(
-            "tables | <i class=\"fa-brands fa-bitbucket\"></i> Bitbucket",
+            "tables | Bitbucket <i class=\"fa-brands fa-bitbucket\"></i>",
             Organization("tables", host = CodeHost.BITBUCKET).renderWeb(emphasized = false),
         )
     }
 
     @Test
-    fun `Markdown appends the host name after the link`() {
-        assertEquals("**[engine](https://github.com/ada/engine)** \\| GitHub", engine.renderMarkdown(emphasized = true))
+    fun `Markdown appends the host name inside the link`() {
+        assertEquals("**[engine \\| GitHub](https://github.com/ada/engine)**", engine.renderMarkdown(emphasized = true))
         val notes = Organization("notes", host = CodeHost.GITLAB)
         assertEquals("notes \\| GitLab", notes.renderMarkdown(emphasized = false))
     }

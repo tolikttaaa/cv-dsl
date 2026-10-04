@@ -24,8 +24,8 @@ internal fun List<String>.renderWeb(): String = if (isEmpty()) "" else
     "<div class=\"tags\">${joinToString("") { "<span class=\"tag\">${h(it)}</span>" }}</div>"
 
 internal fun Organization.renderWeb(emphasized: Boolean): String {
-    val name = if (emphasized) "<strong>${h(name)}</strong>" else h(name)
-    val label = host?.let { "$name | <i class=\"fa-brands fa-${it.webIcon}\"></i> ${h(it.displayName)}" } ?: name
+    val text = h(name) + host?.let { " | ${h(it.displayName)} <i class=\"fa-brands fa-${it.webIcon}\"></i>" }.orEmpty()
+    val label = if (emphasized) "<strong>$text</strong>" else text
     return url?.let {
         "<a href=\"${h(it)}\" target=\"_blank\" rel=\"noopener\">$label</a>"
     } ?: label
