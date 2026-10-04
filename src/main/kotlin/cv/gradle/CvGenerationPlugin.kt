@@ -104,12 +104,14 @@ class CvGenerationPlugin : Plugin<Project> {
         CompileCvPdfTask::class.java,
     ) { task ->
         task.group = TASK_GROUP
-        task.description = "Generates and compiles build/cv.pdf with two LuaLaTeX passes."
+        task.description = "Generates and compiles build/cv.pdf with two LuaLaTeX passes, " +
+            "then verifies its page layout rules."
         task.dependsOn(verify, latex)
         task.lualatexExecutable.set(extension.lualatexExecutable)
         task.latexDirectory.set(outputs.latex)
         task.pdfFile.set(outputs.pdf)
         task.logFile.set(outputs.latexLog)
+        task.layoutReportFile.set(outputs.layoutReport)
     }
 
     private fun registerSiteAssembly(
@@ -174,6 +176,7 @@ private class CvOutputs(project: Project) {
     val site: Provider<Directory> = buildRoot.dir("site")
     val pdf: Provider<RegularFile> = buildRoot.file("cv.pdf")
     val latexLog: Provider<RegularFile> = buildRoot.file("lualatex.log")
+    val layoutReport: Provider<RegularFile> = buildRoot.file("cv-layout.txt")
     val serverLog: Provider<RegularFile> = buildRoot.file("site-server.log")
     val serverPid: Provider<RegularFile> = buildRoot.file("site-server.pid")
 }

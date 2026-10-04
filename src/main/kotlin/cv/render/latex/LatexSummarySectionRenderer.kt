@@ -4,12 +4,12 @@ import cv.model.SummarySection
 import cv.render.ElementRenderer
 
 /** Renders the free-form summary section. */
-internal object LatexSummarySectionRenderer : ElementRenderer<SummarySection, Unit> {
-    override fun render(element: SummarySection, context: Unit): String = with(element) {
+internal object LatexSummarySectionRenderer : ElementRenderer<SummarySection, LatexRenderContext> {
+    override fun render(element: SummarySection, context: LatexRenderContext): String = with(element) {
         buildString {
-            append(renderLatexTitle())
+            append(renderLatexTitle(context))
             appendLine("""\begin{summary}""")
-            appendLine("""    \summaryText{""")
+            appendLine("""    \summaryText[${context.markKey}]{""")
             append(text.renderLatexBlocks(indent = 2))
             appendLine("""    }""")
             appendLine("""\end{summary}""")

@@ -76,7 +76,7 @@ class LatexTextTest {
         )
 
         rendered.forEach { (social, expected) ->
-            assertEquals(expected, LatexSocialRenderer.render(social, Unit))
+            assertEquals(expected, LatexSocialRenderer.render(social, LatexRenderContext.header))
         }
     }
 }

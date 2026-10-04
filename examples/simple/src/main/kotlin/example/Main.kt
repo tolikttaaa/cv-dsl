@@ -3,6 +3,7 @@ package example
 import cv.dsl.cv
 import cv.generation.CvApplication
 import cv.model.Organization
+import cv.model.PageFit
 import cv.model.RenderScope
 import cv.model.RenderTarget
 
@@ -11,6 +12,13 @@ private val simpleCv = cv {
     lastName = "Lovelace"
     tagline = "Computing pioneer"
     footerText = "Ada Lovelace — CV"
+
+    // PDF print settings: every font size scales with fontSize, and
+    // generatePdf fails when the PDF outgrows maxPages.
+    pdf {
+        fontSize = 10.5
+        maxPages = 1
+    }
 
     social {
         row {
@@ -27,7 +35,8 @@ private val simpleCv = cv {
         }
     }
 
-    experience("Experience", "faSuitcase", id = "experience") {
+    // Page rules are verified after compilation, like maxPages.
+    experience("Experience", "faSuitcase", id = "experience", pageFit = PageFit.OnPage(1)) {
         work(
             role = "Mathematician",
             company = Organization("Analytical Engines", "https://en.wikipedia.org/wiki/Analytical_engine"),

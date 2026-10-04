@@ -1,10 +1,12 @@
 package cv.render.latex
 
 import cv.model.Cv
+import java.math.BigDecimal
 
 /** Renders the root LaTeX document around the independently rendered section files. */
 internal fun Cv.renderLatexDocument(): String = buildString {
     appendLine("""\documentclass[localFont,alternative]{cvdsl}""")
+    pdf.fontSize?.let { appendLine("""\cvfontsize{${it.toLatexPoints()}pt}""") }
     if (!hyphenation) {
         // Forbid hyphenation document-wide; emergencystretch lets justified
         // lines breathe instead of overflowing once words must stay whole.
@@ -17,7 +19,7 @@ internal fun Cv.renderLatexDocument(): String = buildString {
     appendLine()
     appendLine("""\socialinfo{""")
     append(social.joinToString(" \\\\\n") { row ->
-        "    " + row.joinToString(" ") { LatexRendererBundle.socialRenderer.render(it, Unit) }
+        "    " + row.joinToString(" ") { LatexRendererBundle.socialRenderer.render(it, LatexRenderContext.header) }
     })
     appendLine()
     appendLine("""}""")
@@ -35,3 +37,6 @@ internal fun Cv.renderLatexDocument(): String = buildString {
     }
     appendLine("""\end{document}""")
 }
+
+/** Formats a point size without a redundant fraction: `9.0` → `9`, `9.5` → `9.5`. */
+private fun Double.toLatexPoints(): String = BigDecimal.valueOf(this).stripTrailingZeros().toPlainString()

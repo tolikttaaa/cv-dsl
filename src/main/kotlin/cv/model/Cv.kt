@@ -30,6 +30,7 @@ data class Photo(
  *   where browsers do not hyphenate by default.
  * @property social Contact entries of the header, grouped into visual rows.
  * @property sections CV sections in display order.
+ * @property pdf Print settings of the PDF: base font size and page limit.
  */
 data class Cv(
     val firstName: String,
@@ -40,4 +41,5 @@ data class Cv(
     val hyphenation: Boolean,
     val social: List<List<Social>>,
     val sections: List<Section>,
+    val pdf: PdfLayout = PdfLayout(),
 )

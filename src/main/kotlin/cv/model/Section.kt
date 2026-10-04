@@ -21,6 +21,9 @@ sealed interface Section {
 
     /** Render targets this section appears in. */
     val scope: RenderScope
+
+    /** Where the whole section, title included, must land in the PDF. */
+    val pageFit: PageFit
 }
 
 /** Free-form introduction text at the top of the CV. */
@@ -32,6 +35,7 @@ data class SummarySection(
     val text: Description,
     /** Render targets this summary appears in. */
     override val scope: RenderScope = RenderScope.all,
+    override val pageFit: PageFit = PageFit.Anywhere,
 ) : Section
 
 /**
@@ -50,6 +54,8 @@ data class Work(
     val tags: List<String>,
     /** Render targets this position appears in. */
     val scope: RenderScope = RenderScope.all,
+    /** Where this position must land in the PDF. */
+    val pageFit: PageFit = PageFit.Anywhere,
 )
 
 /** A chronological list of positions — used for both work experience and teaching. */
@@ -61,6 +67,7 @@ data class WorksSection(
     val works: List<Work>,
     /** Render targets this section appears in. */
     override val scope: RenderScope = RenderScope.all,
+    override val pageFit: PageFit = PageFit.Anywhere,
 ) : Section
 
 /** One row of the skills table: a category and the skills belonging to it. */
@@ -69,6 +76,8 @@ data class SkillEntry(
     val skills: List<String>,
     /** Render targets this skills row appears in. */
     val scope: RenderScope = RenderScope.all,
+    /** Where this skills row must land in the PDF. */
+    val pageFit: PageFit = PageFit.Anywhere,
 )
 
 /** A two-column keyword table of skill categories. */
@@ -80,6 +89,7 @@ data class SkillsSection(
     val entries: List<SkillEntry>,
     /** Render targets this section appears in. */
     override val scope: RenderScope = RenderScope.all,
+    override val pageFit: PageFit = PageFit.Anywhere,
 ) : Section
 
 /** One personal project inside a [ProjectsSection]. */
@@ -91,6 +101,8 @@ data class Project(
     val tags: List<String>,
     /** Render targets this project appears in. */
     val scope: RenderScope = RenderScope.all,
+    /** Where this project must land in the PDF. */
+    val pageFit: PageFit = PageFit.Anywhere,
 )
 
 /** A list of personal / side projects. */
@@ -102,6 +114,7 @@ data class ProjectsSection(
     val projects: List<Project>,
     /** Render targets this section appears in. */
     override val scope: RenderScope = RenderScope.all,
+    override val pageFit: PageFit = PageFit.Anywhere,
 ) : Section
 
 /** One education milestone: a year range and its rich-text description. */
@@ -110,6 +123,8 @@ data class EducationEntry(
     val description: RichText,
     /** Render targets this milestone appears in. */
     val scope: RenderScope = RenderScope.all,
+    /** Where this milestone must land in the PDF. */
+    val pageFit: PageFit = PageFit.Anywhere,
 )
 
 /** A timeline of education milestones. */
@@ -121,6 +136,7 @@ data class EducationSection(
     val entries: List<EducationEntry>,
     /** Render targets this section appears in. */
     override val scope: RenderScope = RenderScope.all,
+    override val pageFit: PageFit = PageFit.Anywhere,
 ) : Section
 
 /** A single professional reference. */
@@ -132,6 +148,8 @@ data class Referee(
     val email: String,
     /** Render targets this reference appears in. */
     val scope: RenderScope = RenderScope.all,
+    /** Where this reference must land in the PDF. */
+    val pageFit: PageFit = PageFit.Anywhere,
 )
 
 /** A list of professional references with contact details. */
@@ -143,4 +161,5 @@ data class ReferencesSection(
     val referees: List<Referee>,
     /** Render targets this section appears in. */
     override val scope: RenderScope = RenderScope.all,
+    override val pageFit: PageFit = PageFit.Anywhere,
 ) : Section

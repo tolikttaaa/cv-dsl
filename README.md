@@ -121,7 +121,7 @@ Now use the plugin tasks:
 | `generateLatex` | Complete LuaLaTeX source tree in `build/latex` |
 | `generateMarkdown` | Markdown document in `build/markdown` |
 | `generateCv` | Every target selected by `cvGeneration.formats` (all by default; `WEB` builds the site including the PDF) |
-| `generatePdf` | Compiled `build/cv.pdf` |
+| `generatePdf` | Compiled `build/cv.pdf`, verified against the [PDF layout rules](#pdf-layout); `build/cv-layout.txt` lists where every element landed |
 | `assembleSite` | Portfolio and PDF in `build/site` |
 | `serveSite` / `stopSite` | Managed local preview on port 8080 |
 | `verifyCvEnvironment` | Diagnostics for LuaLaTeX and `jwebserver` |
@@ -188,6 +188,51 @@ references("References", "faQuoteLeft", scope = RenderScope.only(RenderTarget.PD
 An element is rendered by a target when the target is in `renderers` and not in
 `excludedRenderers`. Filtering is applied once, centrally, before rendering —
 individual renderers never see excluded elements.
+
+## PDF layout
+
+The `pdf` block sets the print settings of the PDF. The base font size scales
+every other size of the document (name, headings, contacts, keyword chips);
+without it the document keeps its 10pt default. `maxPages` bounds the length of
+the compiled PDF:
+
+```kotlin
+pdf {
+    fontSize = 9.5
+    maxPages = 2
+}
+```
+
+Every section and entry also accepts a `pageFit` rule for where it must land:
+
+```kotlin
+import cv.model.PageFit
+
+experience("Experience", "faSuitcase", id = "experience", pageFit = PageFit.OnPage(1)) {
+    // …the whole section, title included, must sit on page 1.
+}
+skills("Skills", "faCode", pageFit = PageFit.SinglePage) {
+    // …never split across a page break, whichever page that is.
+}
+```
+
+Rules are verified, not enforced: `generatePdf` compiles the document as usual,
+then fails with every broken rule, for example
+
+```text
+PDF layout: 3 pages, 2 of 2 page rules violated:
+  - The PDF has 3 pages, but is limited to 2
+  - Experience must fit on page 1, but occupies pages 1–2
+```
+
+The PDF is still written so the layout can be inspected, and
+`build/cv-layout.txt` lists the pages of every section and entry. Shorten the
+content or lower `fontSize` until the rules hold. Rules that no layout can
+satisfy, such as `OnPage(3)` with `maxPages = 2`, fail generation right away.
+The web and Markdown outputs ignore the `pdf` block and page rules.
+
+The LaTeX layout keeps every entry in one piece and each section title with its
+first entry, so page breaks only fall between entries.
 
 ## Requirements
 

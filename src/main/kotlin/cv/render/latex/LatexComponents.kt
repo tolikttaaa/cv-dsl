@@ -8,11 +8,11 @@ import cv.model.Section
 import cv.model.Social
 import cv.render.ElementRenderer
 
-internal fun Section.renderLatexTitle(): String =
-    """\sectionTitle{${latexEscape(title)}}{\$icon}""" + "\n"
+internal fun Section.renderLatexTitle(context: LatexRenderContext): String =
+    """\sectionTitle[${context.markKey}]{${latexEscape(title)}}{\$icon}""" + "\n"
 
-internal object LatexSocialRenderer : ElementRenderer<Social, Unit> {
-    override fun render(element: Social, context: Unit): String = when (element) {
+internal object LatexSocialRenderer : ElementRenderer<Social, LatexRenderContext> {
+    override fun render(element: Social, context: LatexRenderContext): String = when (element) {
         is Social.Phone -> """\smartphone{${latexEscape(element.number)}}"""
         is Social.Telegram -> """\telegram{${latexEscape(element.handle)}}"""
         is Social.Email -> """\email{${latexEscape(element.address)}}"""

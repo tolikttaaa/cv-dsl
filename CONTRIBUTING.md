@@ -24,7 +24,9 @@ For a new model element:
 
 For a new section type, update the sealed `Section` hierarchy and exhaustive
 `Section.renderWith` dispatch. The build must never leave one output format
-silently unsupported.
+silently unsupported. The exhaustive entry listing of `LayoutManifest` then
+requires its entries too; give their `cvdsl.cls` commands an optional
+page-mark key (see `\work`) so page rules can be verified.
 
 For a Gradle plugin change, test extension defaults, task registration and at
 least one observable task behavior. Keep task inputs and outputs annotated so

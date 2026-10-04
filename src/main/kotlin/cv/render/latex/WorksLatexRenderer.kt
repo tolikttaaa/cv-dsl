@@ -6,25 +6,27 @@ import cv.model.WorksSection
 import cv.render.ElementRenderer
 
 /** Renders employment and teaching sections, which share the works layout. */
-internal object LatexWorksSectionRenderer : ElementRenderer<WorksSection, Unit> {
-    override fun render(element: WorksSection, context: Unit): String = with(element) {
+internal object LatexWorksSectionRenderer : ElementRenderer<WorksSection, LatexRenderContext> {
+    override fun render(element: WorksSection, context: LatexRenderContext): String = with(element) {
         buildString {
-            append(renderLatexTitle())
+            append(renderLatexTitle(context))
             if (works.any { work -> work.description.blocks.any { it is Bullets } }) {
                 appendLine("""\renewcommand{\labelitemi}{${'$'}\bullet${'$'}}""")
             }
             appendLine("""\begin{works}""")
-            for (work in works) append(LatexRendererBundle.workRenderer.render(work, context))
+            works.forEachIndexed { index, work ->
+                append(LatexRendererBundle.workRenderer.render(work, context.entry(index)))
+            }
             appendLine("""\end{works}""")
         }
     }
 }
 
-internal object LatexWorkRenderer : ElementRenderer<Work, Unit> {
-    override fun render(element: Work, context: Unit): String = with(element) {
+internal object LatexWorkRenderer : ElementRenderer<Work, LatexRenderContext> {
+    override fun render(element: Work, context: LatexRenderContext): String = with(element) {
         buildString {
             val renderedCompany = company.renderLatex(emphasized = true)
-            appendLine("""    \work""")
+            appendLine("""    \work[${context.markKey}]""")
             appendLine(
                 """        {${latexEscape(role)}} {$renderedCompany} """ +
                     """{${latexEscape(location)}} {${latexEscape(dates)}}""",
